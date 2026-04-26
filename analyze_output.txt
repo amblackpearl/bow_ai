@@ -1,0 +1,23 @@
+Analyzing chat_message_widget.dart...
+
+  error - chat_message_widget.dart:558:26 - Invalid constant value. - invalid_constant
+warning - chat_message_widget.dart:462:10 - The method doesn't override an inherited method. Try updating this class to match the superclass, or removing the override annotation. - override_on_non_overriding_member
+   info - chat_message_widget.dart:3:8 - The imported package 'flutter_markdown' isn't a dependency of the importing package. Try adding a dependency for 'flutter_markdown' in the 'pubspec.yaml' file. - depend_on_referenced_packages
+   info - chat_message_widget.dart:5:8 - The imported package 'markdown' isn't a dependency of the importing package. Try adding a dependency for 'markdown' in the 'pubspec.yaml' file. - depend_on_referenced_packages
+   info - chat_message_widget.dart:6:8 - The imported package 'google_fonts' isn't a dependency of the importing package. Try adding a dependency for 'google_fonts' in the 'pubspec.yaml' file. - depend_on_referenced_packages
+   info - chat_message_widget.dart:38:52 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - chat_message_widget.dart:40:38 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - chat_message_widget.dart:44:58 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - chat_message_widget.dart:122:29 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - chat_message_widget.dart:124:48 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - chat_message_widget.dart:163:58 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - chat_message_widget.dart:224:39 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - chat_message_widget.dart:405:72 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - chat_message_widget.dart:514:60 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - chat_message_widget.dart:517:62 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - chat_message_widget.dart:589:30 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - chat_message_widget.dart:590:29 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - chat_message_widget.dart:593:62 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - chat_message_widget.dart:755:40 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+
+19 issues found.

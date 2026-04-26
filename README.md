@@ -1,0 +1,3 @@
+# BowAI
+
+Simple flutter project 
