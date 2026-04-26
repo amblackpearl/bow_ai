@@ -122,8 +122,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   late AnimationController _listeningController;
 
   final OpenRouterService _openRouterService = OpenRouterService(
-    apiKey:
-        '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',
+    apiKey: 'api key',
   );
 
   // ── State ──
