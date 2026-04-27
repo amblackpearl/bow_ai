@@ -30,7 +30,7 @@ class ChatMessageWidget extends StatelessWidget {
     final isUser = message.role == 'user';
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 20.0),
       decoration: BoxDecoration(
         border: isUser
             ? null
@@ -51,11 +51,13 @@ class ChatMessageWidget extends StatelessWidget {
         children: [
           // Message Content Area
           Expanded(
-            child: Column(
-              crossAxisAlignment: isUser
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
-              children: [
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: isUser
+                    ? CrossAxisAlignment.end
+                    : CrossAxisAlignment.start,
+                children: [
                 // ╔══════════════════════════════════════════════════════╗
                 // ║  FIX #2: Model indicator for AI messages             ║
                 // ╚══════════════════════════════════════════════════════╝
@@ -72,7 +74,9 @@ class ChatMessageWidget extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       color: isUser
                           ? Theme.of(context).colorScheme.primary
-                          : (Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey.shade600),
+                          : (Theme.of(context).brightness == Brightness.dark
+                                ? Colors.grey.shade400
+                                : Colors.grey.shade600),
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -104,23 +108,26 @@ class ChatMessageWidget extends StatelessWidget {
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   // ╔══════════════════════════════════════════════════════╗
   // ║  FIX #2: Model indicator widget                     ║
   // ╚══════════════════════════════════════════════════════╝
   Widget _buildModelIndicator(BuildContext context) {
     final shortName = message.modelName!.split('/').last.toUpperCase();
-    final primaryColor = Theme.of(context).colorScheme.primary;
+    final primaryColor = const Color(
+      0xFF1A73E8,
+    ); // Consistent with _Design.primary
     return Container(
       margin: const EdgeInsets.only(bottom: 8.0),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: primaryColor.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: primaryColor.withOpacity(0.15)),
       ),
       child: Row(
@@ -131,10 +138,10 @@ class ChatMessageWidget extends StatelessWidget {
           Text(
             shortName,
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 10,
               color: primaryColor,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.3,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
             ),
           ),
         ],
@@ -143,26 +150,29 @@ class ChatMessageWidget extends StatelessWidget {
   }
 
   Widget _buildUserMessage(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF24272C) : const Color(0xFFF0F2F5);
+
     return Container(
       constraints: BoxConstraints(
         maxWidth: MediaQuery.of(context).size.width * 0.75,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Theme.of(context).colorScheme.primary,
-            Theme.of(context).colorScheme.secondary,
-          ],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        borderRadius: BorderRadius.circular(12),
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: isDark
+                ? Colors.black.withOpacity(0.4)
+                : const Color(0xFFA3B1C6).withOpacity(0.6),
+            offset: const Offset(5, 5),
+            blurRadius: 10,
+          ),
+          BoxShadow(
+            color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
+            offset: const Offset(-5, -5),
+            blurRadius: 10,
           ),
         ],
       ),
@@ -177,9 +187,33 @@ class ChatMessageWidget extends StatelessWidget {
   }
 
   Widget _buildAIMessage(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF24272C) : const Color(0xFFF0F2F5);
+
     return Container(
       constraints: BoxConstraints(
         maxWidth: MediaQuery.of(context).size.width * 0.85,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 14.0),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: isDark
+                ? Colors.black.withOpacity(0.3)
+                : const Color(0xFFA3B1C6).withOpacity(0.4),
+            offset: const Offset(4, 4),
+            blurRadius: 8,
+          ),
+          BoxShadow(
+            color: isDark
+                ? Colors.white.withOpacity(0.03)
+                : Colors.white.withOpacity(0.8),
+            offset: const Offset(-4, -4),
+            blurRadius: 8,
+          ),
+        ],
       ),
       child: MarkdownBody(
         data: message.content,
@@ -193,14 +227,22 @@ class ChatMessageWidget extends StatelessWidget {
 
   MarkdownStyleSheet _getMarkdownStyle(BuildContext context, bool isUser) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isUser ? Colors.white : (isDark ? Colors.grey.shade300 : Colors.grey.shade900);
+    final textColor = isUser
+        ? (isDark ? Colors.white : const Color(0xFF1E293B))
+        : (isDark ? Colors.grey.shade300 : Colors.grey.shade900);
     final codeBgColor = isUser
-        ? const Color.fromARGB(255, 185, 178, 178)
-        : (isDark ? const Color(0xFF2D2D2D) : const Color.fromARGB(255, 185, 178, 178));
-    final codeTextColor = isUser ? Colors.white : (isDark ? Colors.grey.shade300 : Colors.grey.shade800);
-    final blockquoteColor = isUser ? Colors.white70 : (isDark ? Colors.grey.shade400 : Colors.grey.shade700);
-    final blockquoteBgColor = isUser ? Colors.white24 : (isDark ? Colors.grey.shade800 : Colors.grey.shade900);
-    
+        ? (isDark ? Colors.white24 : Colors.black.withOpacity(0.05))
+        : (isDark ? const Color(0xFF2D2D2D) : Colors.black.withOpacity(0.05));
+    final codeTextColor = isUser
+        ? (isDark ? Colors.white : const Color(0xFF1E293B))
+        : (isDark ? Colors.grey.shade300 : Colors.grey.shade800);
+    final blockquoteColor = isUser
+        ? (isDark ? Colors.white70 : Colors.grey.shade700)
+        : (isDark ? Colors.grey.shade400 : Colors.grey.shade700);
+    final blockquoteBgColor = isUser
+        ? (isDark ? Colors.white24 : Colors.black.withOpacity(0.03))
+        : (isDark ? Colors.grey.shade800 : Colors.grey.shade900);
+
     return MarkdownStyleSheet(
       p: TextStyle(
         color: textColor,
@@ -268,18 +310,16 @@ class ChatMessageWidget extends StatelessWidget {
         fontWeight: FontWeight.w600,
         height: 1.3,
       ),
-      listBullet: TextStyle(
-        color: textColor,
-        fontSize: 15,
-        height: 1.6,
-      ),
+      listBullet: TextStyle(color: textColor, fontSize: 15, height: 1.6),
       tableHead: TextStyle(
         color: textColor,
         fontWeight: FontWeight.bold,
         fontSize: 14,
       ),
       tableBody: TextStyle(
-        color: isUser ? Colors.white70 : (isDark ? Colors.grey.shade400 : Colors.grey.shade700),
+        color: isUser
+            ? Colors.white70
+            : (isDark ? Colors.grey.shade400 : Colors.grey.shade700),
         fontSize: 14,
       ),
     );
@@ -378,31 +418,42 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
 
   CodeBlockBuilder({required this.context, required this.isUser});
 
-  Color get _backgroundColor => Theme.of(context).brightness == Brightness.dark 
-      ? const Color(0xFF1E1E1E) : const Color(0xFFF8FAFC);
-  Color get _headerColor => Theme.of(context).brightness == Brightness.dark 
-      ? const Color(0xFF2D2D2D) : const Color(0xFFF1F5F9);
-  Color get _borderColor => Theme.of(context).brightness == Brightness.dark 
-      ? const Color(0xFF404040) : const Color(0xFFE2E8F0);
-  Color get _textColor => Theme.of(context).brightness == Brightness.dark 
-      ? const Color(0xFFD4D4D4) : const Color(0xFF1E293B);
+  Color get _backgroundColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFF1E1E1E)
+      : const Color(0xFFF8FAFC);
+  Color get _headerColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFF2D2D2D)
+      : const Color(0xFFF1F5F9);
+  Color get _borderColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFF404040)
+      : const Color(0xFFE2E8F0);
+  Color get _textColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFFD4D4D4)
+      : const Color(0xFF1E293B);
 
-  Color get commentColor => Theme.of(context).brightness == Brightness.dark 
-      ? const Color(0xFF6A9955) : const Color(0xFF008000);
-  Color get keywordColor => Theme.of(context).brightness == Brightness.dark 
-      ? const Color(0xFF569CD6) : const Color(0xFF0000FF);
-  Color get stringColor => Theme.of(context).brightness == Brightness.dark 
-      ? const Color(0xFFCE9178) : const Color(0xFFA31515);
-  Color get numberColor => Theme.of(context).brightness == Brightness.dark 
-      ? const Color(0xFFB5CEA8) : const Color(0xFF098658);
-  Color get builtInColor => Theme.of(context).brightness == Brightness.dark 
-      ? const Color(0xFF4FC1FF) : const Color(0xFF267F99);
+  Color get commentColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFF6A9955)
+      : const Color(0xFF008000);
+  Color get keywordColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFF569CD6)
+      : const Color(0xFF0000FF);
+  Color get stringColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFFCE9178)
+      : const Color(0xFFA31515);
+  Color get numberColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFFB5CEA8)
+      : const Color(0xFF098658);
+  Color get builtInColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFF4FC1FF)
+      : const Color(0xFF267F99);
 
   Widget _buildCopyButton(String code, BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final iconColor = isDark ? Colors.white70 : Colors.black54;
     final textColor = isDark ? Colors.white : Colors.black87;
-    final btnBgColor = isDark ? const Color(0x60606060) : Colors.black.withOpacity(0.05);
+    final btnBgColor = isDark
+        ? const Color(0x60606060)
+        : Colors.black.withOpacity(0.05);
 
     return Material(
       color: Colors.transparent,
@@ -1040,7 +1091,12 @@ class _ScrollableCodeViewState extends State<_ScrollableCodeView> {
       child: SingleChildScrollView(
         controller: _controller,
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 22),
+        padding: const EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: 22,
+        ),
         child: widget.child,
       ),
     );

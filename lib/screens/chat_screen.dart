@@ -26,82 +26,83 @@ class _Design {
 
   bool get isDark => Theme.of(context).brightness == Brightness.dark;
 
-  Color get primary => Theme.of(context).colorScheme.primary;
-  Color get primarySoft => Theme.of(context).colorScheme.secondary;
-  Color get secondary => Theme.of(context).colorScheme.secondary;
+  // 60% Background (Off-white / Deep Gray)
+  Color get background =>
+      isDark ? const Color(0xFF24272C) : const Color(0xFFF0F2F5);
 
-  Color get surface => Theme.of(context).colorScheme.surface;
-  Color get background => Theme.of(context).scaffoldBackgroundColor;
-  Color get backgroundEnd =>
-      isDark ? const Color(0xFF121212) : const Color(0xFFF1F5F9);
+  // 30% Cards/Containers (Same as background)
+  Color get surface => background;
 
-  Color get textPrimary => Theme.of(context).colorScheme.onSurface;
+  // 10% Action Elements (High-contrast Deep Blue or Teal)
+  Color get primary => const Color(0xFF1A73E8); // Professional Deep Blue
+  Color get primarySoft => primary.withOpacity(0.12);
+  Color get accent =>
+      isDark ? const Color(0xFF4FC3F7) : const Color(0xFF0D47A1);
+
+  Color get textPrimary =>
+      isDark ? const Color(0xFFE2E8F0) : const Color(0xFF1E293B);
   Color get textSecondary =>
-      isDark ? Colors.grey[400]! : const Color(0xFF64748B);
+      isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B);
   Color get textTertiary =>
-      isDark ? Colors.grey[600]! : const Color(0xFF94A3B8);
+      isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
 
-  Color get border => Theme.of(context).colorScheme.outlineVariant;
-  Color get inputBg =>
-      isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF1F5F9);
+  Color get border => isDark ? Colors.white10 : Colors.black.withOpacity(0.05);
+  Color get inputBg => background;
 
-  Color get error => Theme.of(context).colorScheme.error;
-  Color get errorDark => Theme.of(context).colorScheme.error;
-  Color get success => const Color(0xFF10B981);
-  Color get dotLight => Theme.of(context).colorScheme.primaryContainer;
+  Color get error => const Color(0xFFDC2626);
+  Color get success => const Color(0xFF059669);
+  Color get dotLight => primary.withOpacity(0.2);
 
+  // Neumorphic Shadows
+  List<BoxShadow> get shadowExtruded => [
+    BoxShadow(
+      color: isDark
+          ? Colors.black.withOpacity(0.4)
+          : const Color(0xFFA3B1C6).withOpacity(0.6),
+      offset: const Offset(5, 5),
+      blurRadius: 10,
+      spreadRadius: 1,
+    ),
+    BoxShadow(
+      color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
+      offset: const Offset(-5, -5),
+      blurRadius: 10,
+      spreadRadius: 1,
+    ),
+  ];
+
+  List<BoxShadow> get shadowSmall => [
+    BoxShadow(
+      color: isDark
+          ? Colors.black.withOpacity(0.4)
+          : const Color(0xFFA3B1C6).withOpacity(0.5),
+      offset: const Offset(3, 3),
+      blurRadius: 6,
+    ),
+    BoxShadow(
+      color: isDark ? Colors.white.withOpacity(0.04) : Colors.white,
+      offset: const Offset(-3, -3),
+      blurRadius: 6,
+    ),
+  ];
+
+  // Gradients for Action Elements (10%)
   LinearGradient get primaryGradient => LinearGradient(
-    colors: [primary, secondary],
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
-  );
-
-  LinearGradient get bgGradient => LinearGradient(
-    colors: [background, backgroundEnd],
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-  );
-
-  LinearGradient get drawerGradient => LinearGradient(
-    colors: [primary, secondary],
+    colors: [primary, primary.withBlue(255)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  static BorderRadius get radiusSm => BorderRadius.circular(8);
-  static BorderRadius get radiusMd => BorderRadius.circular(12);
-  static BorderRadius get radiusLg => BorderRadius.circular(16);
-  static BorderRadius get radiusXl => BorderRadius.circular(24);
-  static BorderRadius get radiusInput => BorderRadius.circular(26);
-
-  static BoxShadow get shadowSm => BoxShadow(
-    color: Colors.black.withOpacity(0.04),
-    blurRadius: 6,
-    offset: const Offset(0, 1),
-  );
-
-  static BoxShadow get shadowMd => BoxShadow(
-    color: Colors.black.withOpacity(0.06),
-    blurRadius: 12,
-    offset: const Offset(0, 3),
-  );
-
-  static BoxShadow get shadowLg => BoxShadow(
-    color: Colors.black.withOpacity(0.08),
-    blurRadius: 20,
-    offset: const Offset(0, 4),
-  );
+  static BorderRadius get radiusSm => BorderRadius.circular(10);
+  static BorderRadius get radiusMd => BorderRadius.circular(16);
+  static BorderRadius get radiusLg => BorderRadius.circular(24);
+  static BorderRadius get radiusXl => BorderRadius.circular(32);
+  static BorderRadius get radiusInput => BorderRadius.circular(30);
 
   BoxShadow get shadowPrimary => BoxShadow(
     color: primary.withOpacity(0.3),
     blurRadius: 14,
-    offset: const Offset(0, 3),
-  );
-
-  BoxShadow get shadowError => BoxShadow(
-    color: error.withOpacity(0.3),
-    blurRadius: 14,
-    offset: const Offset(0, 3),
+    offset: const Offset(0, 4),
   );
 }
 
@@ -121,9 +122,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   late AnimationController _dotsController;
   late AnimationController _listeningController;
 
-  final OpenRouterService _openRouterService = OpenRouterService(
-    apiKey: 'api-key',
-  );
+  final OpenRouterService _openRouterService = OpenRouterService(apiKey: '');
 
   // ── State ──
   int? _editingMessageIndex;
@@ -1306,7 +1305,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.only(left: 4, right: 60, bottom: 8, top: 4),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: _Design(context).surface,
@@ -1317,7 +1316,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             bottomRight: Radius.circular(18),
           ),
           border: Border.all(color: _Design(context).border),
-          boxShadow: [_Design.shadowSm],
+          boxShadow: _Design(context).shadowSmall,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1479,179 +1478,59 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     final loading = _isLoading;
     final isEditing = _editingMessageIndex != null;
     final canSend = hasText || hasFile || isEditing;
+    final design = _Design(context);
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
-      decoration: BoxDecoration(
-        color: _Design(context).surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 16,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+      decoration: BoxDecoration(color: design.background),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (isEditing)
-            Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: _Design(context).primary.withOpacity(0.05),
-                borderRadius: _Design.radiusMd,
-                border: Border.all(
-                  color: _Design(context).primary.withOpacity(0.15),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.edit_rounded,
-                    color: _Design(context).primary,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Mengedit pesan...',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: _Design(context).primary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: _cancelEdit,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _Design(context).error.withOpacity(0.08),
-                        borderRadius: _Design.radiusSm,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.close,
-                            color: _Design(context).error,
-                            size: 14,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Batal',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: _Design(context).error,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          if (isEditing) _buildEditingIndicator(),
           _buildFileChip(),
           _buildListeningBanner(),
           Container(
             decoration: BoxDecoration(
-              color: _Design(context).inputBg,
+              color: design.background,
               borderRadius: _Design.radiusInput,
-              border: Border.all(
-                color: _isListening
-                    ? _Design(context).error.withOpacity(0.5)
-                    : isEditing
-                    ? _Design(context).primary.withOpacity(0.3)
-                    : hasFile
-                    ? _Design(context).success.withOpacity(0.5)
-                    : _Design(context).border,
-              ),
+              boxShadow: [
+                BoxShadow(
+                  color: design.isDark
+                      ? Colors.black.withOpacity(0.5)
+                      : const Color(0xFFA3B1C6).withOpacity(0.4),
+                  offset: const Offset(4, 4),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                ),
+                BoxShadow(
+                  color: design.isDark
+                      ? Colors.white.withOpacity(0.04)
+                      : Colors.white,
+                  offset: const Offset(-4, -4),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                ),
+              ],
             ),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(right: 4, bottom: 6),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(20),
-                          onTap: _isLoading ? null : _pickFile,
-                          child: Container(
-                            width: 38,
-                            height: 38,
-                            decoration: BoxDecoration(
-                              color: hasFile
-                                  ? _Design(context).success.withOpacity(0.1)
-                                  : _Design(context).inputBg,
-                              borderRadius: BorderRadius.circular(19),
-                            ),
-                            child: Icon(
-                              Icons.attach_file_rounded,
-                              color: hasFile
-                                  ? _Design(context).success
-                                  : _Design(context).textSecondary,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(right: 4, bottom: 6),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(20),
-                          onTap: _isLoading ? null : _toggleListening,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: 38,
-                            height: 38,
-                            decoration: BoxDecoration(
-                              color: _isListening
-                                  ? _Design(context).error.withOpacity(0.1)
-                                  : _Design(context).inputBg,
-                              borderRadius: BorderRadius.circular(19),
-                            ),
-                            child: _isListening
-                                ? AnimatedBuilder(
-                                    animation: _listeningController,
-                                    builder: (context, _) {
-                                      return Icon(
-                                        Icons.mic_rounded,
-                                        color: Color.lerp(
-                                          _Design(context).error,
-                                          Colors.redAccent,
-                                          _listeningController.value,
-                                        ),
-                                        size: 20,
-                                      );
-                                    },
-                                  )
-                                : Icon(
-                                    Icons.mic_none_rounded,
-                                    color: _speechAvailable
-                                        ? _Design(context).textSecondary
-                                        : _Design(context).textTertiary,
-                                    size: 20,
-                                  ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                const SizedBox(width: 8),
+                _buildInputActionButton(
+                  icon: Icons.attach_file_rounded,
+                  onTap: _pickFile,
+                  isActive: hasFile,
+                  activeColor: design.success,
+                  iconSize: 20,
+                ),
+                _buildInputActionButton(
+                  icon: _isListening
+                      ? Icons.mic_rounded
+                      : Icons.mic_none_rounded,
+                  onTap: _toggleListening,
+                  isActive: _isListening,
+                  activeColor: design.error,
+                  iconSize: 20,
                 ),
                 Expanded(
                   child: TextField(
@@ -1659,89 +1538,51 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     focusNode: _focusNode,
                     maxLines: 6,
                     minLines: 1,
-                    keyboardType: TextInputType.multiline,
-                    textInputAction: TextInputAction.newline,
-                    onChanged: (_) {
-                      if (mounted) setState(() {});
-                    },
-                    onSubmitted: (_) => loading ? _stop() : _send(),
+                    onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
                       hintText: _isListening
                           ? 'Listening...'
-                          : hasFile
-                          ? 'Add a message about the file (optional)...'
-                          : isEditing
-                          ? 'Edit pesan...'
-                          : 'Tanya sesuatu...',
+                          : 'Type a message...',
                       hintStyle: TextStyle(
-                        color: _isListening
-                            ? _Design(context).error.withOpacity(0.7)
-                            : _Design(context).textTertiary,
-                        fontSize: 15,
+                        color: design.textTertiary,
+                        fontSize: 14,
                       ),
                       border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12,
-                        vertical: 13,
+                        vertical: 14,
                       ),
                     ),
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: _Design(context).textPrimary,
-                      height: 1.4,
-                    ),
+                    style: TextStyle(fontSize: 15, color: design.textPrimary),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(5),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeOutCubic,
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      gradient: isEditing
-                          ? _Design(context).primaryGradient
-                          : loading
-                          ? LinearGradient(
-                              colors: [
-                                _Design(context).error,
-                                _Design(context).errorDark,
-                              ],
-                            )
-                          : canSend
-                          ? _Design(context).primaryGradient
-                          : null,
-                      color: (!canSend && !loading)
-                          ? _Design(context).border
-                          : null,
-                      shape: BoxShape.circle,
-                      boxShadow: (canSend || loading)
-                          ? [
-                              loading && !isEditing
-                                  ? _Design(context).shadowError
-                                  : _Design(context).shadowPrimary,
-                            ]
-                          : [],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(21),
-                        onTap: loading ? _stop : (canSend ? _send : null),
-                        child: Icon(
-                          isEditing
-                              ? Icons.check_rounded
-                              : loading
-                              ? Icons.stop_rounded
-                              : Icons.arrow_upward_rounded,
-                          color: (canSend || loading)
-                              ? Colors.white
-                              : _Design(context).textTertiary,
-                          size: 22,
-                        ),
+                  padding: const EdgeInsets.all(6),
+                  child: GestureDetector(
+                    onTap: loading ? _stop : (canSend ? _send : null),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: canSend || loading
+                            ? design.primary
+                            : design.background,
+                        shape: BoxShape.circle,
+                        boxShadow: canSend || loading
+                            ? [design.shadowPrimary]
+                            : design.shadowSmall,
+                      ),
+                      child: Icon(
+                        loading
+                            ? Icons.stop_rounded
+                            : (isEditing
+                                  ? Icons.check_rounded
+                                  : Icons.send_rounded),
+                        color: canSend || loading
+                            ? Colors.white
+                            : design.textTertiary,
+                        size: 20,
                       ),
                     ),
                   ),
@@ -1750,6 +1591,158 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEditingIndicator() {
+    final design = _Design(context);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: design.background,
+        borderRadius: _Design.radiusMd,
+        boxShadow: design.shadowSmall,
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.edit_rounded, color: design.primary, size: 16),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Editing message...',
+              style: TextStyle(
+                fontSize: 13,
+                color: design.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.close_rounded, color: design.error, size: 18),
+            onPressed: _cancelEdit,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppBarAction({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    final design = _Design(context);
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: design.background,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: design.shadowSmall,
+            ),
+            child: Icon(icon, color: design.primary, size: 20),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThemeToggle() {
+    final design = _Design(context);
+    final isDark = widget.themeService?.themeMode == ThemeMode.dark;
+
+    return Center(
+      child: GestureDetector(
+        onTap: () => widget.themeService?.toggleTheme(),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          width: 58,
+          height: 30,
+          decoration: BoxDecoration(
+            color: design.background,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: design.shadowSmall,
+          ),
+          child: Stack(
+            children: [
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutBack,
+                left: isDark ? 30 : 2,
+                top: 3,
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: isDark ? design.primary : Colors.orange,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: (isDark ? design.primary : Colors.orange)
+                            .withOpacity(0.3),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                    color: Colors.white,
+                    size: 13,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputActionButton({
+    required IconData icon,
+    required int iconSize,
+    required VoidCallback onTap,
+    bool isActive = false,
+    Color? activeColor,
+  }) {
+    final design = _Design(context);
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: _isLoading ? null : onTap,
+          child: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: design.background,
+              shape: BoxShape.circle,
+              boxShadow: isActive ? [] : design.shadowSmall,
+            ),
+            child: Center(
+              child: Icon(
+                icon,
+                color: isActive
+                    ? (activeColor ?? design.primary)
+                    : design.textSecondary,
+                size: 18,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -1768,46 +1761,72 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     }
   }
 
+  Widget _buildCapabilityBadge(String label, Color color, bool isSelected) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: isSelected
+            ? Colors.white.withOpacity(0.2)
+            : color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: isSelected
+              ? Colors.white.withOpacity(0.4)
+              : color.withOpacity(0.2),
+          width: 0.5,
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 9,
+          fontWeight: FontWeight.w700,
+          color: isSelected ? Colors.white : color,
+          letterSpacing: 0.2,
+        ),
+      ),
+    );
+  }
+
   Widget _buildHistoryItem(Map<String, dynamic> item) {
     final active = item['id'] == _currentConversationId;
     final title = item['title'] as String;
     final time = _relTime(item['updatedAt'] as String);
+    final design = _Design(context);
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           borderRadius: _Design.radiusMd,
           onTap: () => _switchConv(item['id'] as String),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            duration: const Duration(milliseconds: 240),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: active
-                  ? _Design(context).primary.withOpacity(0.07)
-                  : Colors.transparent,
+              color: design.background,
               borderRadius: _Design.radiusMd,
-              border: active
-                  ? Border.all(color: _Design(context).primary.withOpacity(0.2))
-                  : null,
+              boxShadow: active ? design.shadowSmall : null,
+              border: active ? null : Border.all(color: design.border),
             ),
             child: Row(
               children: [
                 Container(
-                  width: 34,
-                  height: 34,
+                  width: 36,
+                  height: 36,
                   decoration: BoxDecoration(
-                    color: active
-                        ? _Design(context).primary
-                        : _Design(context).inputBg,
+                    color: active ? design.primary : design.background,
                     borderRadius: _Design.radiusSm,
+                    boxShadow: active
+                        ? [design.shadowPrimary]
+                        : design.shadowSmall,
                   ),
                   child: Icon(
-                    active ? Icons.chat_bubble : Icons.chat_bubble_outline,
-                    color: active
-                        ? Colors.white
-                        : _Design(context).textSecondary,
+                    active
+                        ? Icons.chat_bubble_rounded
+                        : Icons.chat_bubble_outline_rounded,
+                    color: active ? Colors.white : design.textTertiary,
                     size: 16,
                   ),
                 ),
@@ -1823,19 +1842,18 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: active
-                              ? FontWeight.w600
-                              : FontWeight.w500,
-                          color: active
-                              ? _Design(context).primary
-                              : const Color(0xFF1E293B),
+                              ? FontWeight.w700
+                              : FontWeight.w600,
+                          color: active ? design.primary : design.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 3),
                       Text(
                         time,
                         style: TextStyle(
                           fontSize: 11,
-                          color: _Design(context).textTertiary,
+                          color: design.textTertiary,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -1875,9 +1893,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
   }
 
-  // ═══════════════════════════════════════
-  // MODEL PICKER
-  // ═══════════════════════════════════════
   void _showModelPicker() {
     final grouped = <String, List<Map<String, String>>>{};
     for (final m in _models) {
@@ -1924,18 +1939,19 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      gradient: _Design(context).primaryGradient,
+                      color: _Design(context).primary,
                       borderRadius: _Design.radiusSm,
+                      boxShadow: [_Design(context).shadowPrimary],
                     ),
                     child: const Icon(
-                      Icons.auto_awesome,
+                      Icons.auto_awesome_rounded,
                       color: Colors.white,
                       size: 18,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1944,64 +1960,59 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           'Pilih Model AI',
                           style: TextStyle(
                             fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w800,
                             color: _Design(context).textPrimary,
+                            letterSpacing: -0.5,
                           ),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 1),
                         Text(
-                          'Semua model gratis dari OpenRouter',
+                          'Optimalkan chat dengan model terbaik',
                           style: TextStyle(
                             fontSize: 12,
                             color: _Design(context).textTertiary,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.close,
-                      color: _Design(context).textTertiary,
-                      size: 22,
-                    ),
-                    onPressed: () => Navigator.pop(ctx),
-                  ),
                 ],
               ),
             ),
+            const SizedBox(height: 12),
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: _Design(context).primary.withOpacity(0.05),
+                color: _Design(context).background,
                 borderRadius: _Design.radiusMd,
-                border: Border.all(
-                  color: _Design(context).primary.withOpacity(0.12),
-                ),
+                boxShadow: _Design(context).shadowSmall,
               ),
               child: Row(
                 children: [
                   Icon(
-                    Icons.check_circle,
+                    Icons.verified_rounded,
                     color: _Design(context).primary,
-                    size: 16,
+                    size: 18,
                   ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 12),
                   Text(
-                    'Aktif: ',
+                    'Aktif Sekarang:',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       color: _Design(context).textSecondary,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       _shortModel,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
                         color: _Design(context).primary,
                       ),
                     ),
@@ -2041,17 +2052,18 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                         return Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 4,
-                            vertical: 1.5,
+                            vertical: 3,
                           ),
                           child: Material(
                             color: Colors.transparent,
                             child: InkWell(
                               borderRadius: _Design.radiusMd,
                               onTap: () {
-                                if (mounted)
+                                if (mounted) {
                                   setState(
                                     () => _selectedModel = model['name']!,
                                   );
+                                }
                                 _saveModelPref();
                                 Navigator.pop(ctx);
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -2077,50 +2089,51 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                 );
                               },
                               child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 180),
+                                duration: const Duration(milliseconds: 200),
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 10,
+                                  horizontal: 14,
+                                  vertical: 12,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: sel
-                                      ? _Design(
-                                          context,
-                                        ).primary.withOpacity(0.06)
-                                      : Colors.transparent,
+                                  color: _Design(context).background,
                                   borderRadius: _Design.radiusMd,
-                                  border: Border.all(
-                                    color: sel
-                                        ? _Design(context).primary
-                                        : _Design(context).border,
-                                    width: sel ? 1.2 : 0.5,
-                                  ),
+                                  boxShadow: sel
+                                      ? _Design(context).shadowSmall
+                                      : null,
+                                  border: sel
+                                      ? null
+                                      : Border.all(
+                                          color: _Design(context).border,
+                                        ),
                                 ),
                                 child: Row(
                                   children: [
                                     AnimatedContainer(
                                       duration: const Duration(
-                                        milliseconds: 180,
+                                        milliseconds: 200,
                                       ),
-                                      width: 28,
-                                      height: 28,
+                                      width: 32,
+                                      height: 32,
                                       decoration: BoxDecoration(
                                         color: sel
                                             ? _Design(context).primary
-                                            : _Design(context).inputBg,
+                                            : _Design(context).background,
                                         borderRadius: _Design.radiusSm,
+                                        boxShadow: sel
+                                            ? [_Design(context).shadowPrimary]
+                                            : _Design(context).shadowSmall,
                                       ),
                                       child: Icon(
                                         sel
-                                            ? Icons.check
-                                            : Icons.smart_toy_outlined,
+                                            ? Icons.check_rounded
+                                            : Icons.smart_toy_rounded,
                                         color: sel
                                             ? Colors.white
                                             : _Design(context).textTertiary,
-                                        size: 13,
+                                        size: 14,
                                       ),
                                     ),
-                                    const SizedBox(width: 10),
+                                    const SizedBox(width: 14),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -2130,9 +2143,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                             name,
                                             style: TextStyle(
                                               fontWeight: sel
-                                                  ? FontWeight.bold
-                                                  : FontWeight.w500,
-                                              fontSize: 13,
+                                                  ? FontWeight.w800
+                                                  : FontWeight.w600,
+                                              fontSize: 14,
                                               color: sel
                                                   ? _Design(context).primary
                                                   : _Design(
@@ -2140,69 +2153,31 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                                     ).textPrimary,
                                             ),
                                           ),
-                                          const SizedBox(height: 3),
+                                          const SizedBox(height: 4),
                                           Row(
                                             children: [
                                               Text(
                                                 prov,
                                                 style: TextStyle(
-                                                  fontSize: 10,
+                                                  fontSize: 11,
                                                   color: _Design(
                                                     context,
                                                   ).textTertiary,
+                                                  fontWeight: FontWeight.w500,
                                                 ),
                                               ),
-                                              const SizedBox(width: 6),
-                                              Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 4,
-                                                      vertical: 1,
-                                                    ),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.blue[50],
-                                                  borderRadius:
-                                                      BorderRadius.circular(3),
-                                                  border: Border.all(
-                                                    color: Colors.blue[200]!,
-                                                    width: 0.5,
-                                                  ),
-                                                ),
-                                                child: const Text(
-                                                  '📄 TXT',
-                                                  style: TextStyle(
-                                                    fontSize: 8,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
+                                              const SizedBox(width: 10),
+                                              _buildCapabilityBadge(
+                                                '📄 TEXT',
+                                                Colors.blue,
+                                                sel,
                                               ),
                                               if (hasImage) ...[
-                                                const SizedBox(width: 3),
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 4,
-                                                        vertical: 1,
-                                                      ),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.green[50],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          3,
-                                                        ),
-                                                    border: Border.all(
-                                                      color: Colors.green[200]!,
-                                                      width: 0.5,
-                                                    ),
-                                                  ),
-                                                  child: const Text(
-                                                    '🖼️ IMG',
-                                                    style: TextStyle(
-                                                      fontSize: 8,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
+                                                const SizedBox(width: 4),
+                                                _buildCapabilityBadge(
+                                                  '🖼️ VISION',
+                                                  Colors.green,
+                                                  sel,
                                                 ),
                                               ],
                                             ],
@@ -2264,7 +2239,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                             ),
                           ),
                         );
-                      }),
+                      }).toList(),
                       if (ci < sorted.length - 1) const SizedBox(height: 6),
                     ],
                   );
@@ -2283,89 +2258,59 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   // ═══════════════════════════════════════
   @override
   Widget build(BuildContext context) {
+    final design = _Design(context);
     return Scaffold(
+      backgroundColor: design.background,
       appBar: AppBar(
+        backgroundColor: design.background,
+        elevation: 0,
+        centerTitle: false,
         title: GestureDetector(
           onTap: _showModelPicker,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'BowAI',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(width: 10),
-              AnimatedBuilder(
-                animation: _pulseController,
-                builder: (_, __) => Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(
-                      0.12 + _pulseController.value * 0.06,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.auto_awesome,
-                        size: 12,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(width: 4),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 100),
-                        child: Text(
-                          _shortModel,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 2),
-                      const Icon(
-                        Icons.unfold_more,
-                        size: 14,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              widget.themeService?.themeMode == ThemeMode.dark
-                  ? Icons.light_mode
-                  : Icons.dark_mode,
-              color: Colors.white,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: design.background,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: design.shadowSmall,
             ),
-            tooltip: 'Toggle Theme',
-            onPressed: () {
-              widget.themeService?.toggleTheme();
-            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'BowAI',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 18,
+                    color: design.primary,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Container(width: 1, height: 16, color: design.border),
+                const SizedBox(width: 12),
+                Flexible(
+                  child: Text(
+                    _shortModel,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: design.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 18,
+                  color: design.textTertiary,
+                ),
+              ],
+            ),
           ),
-        ],
-        flexibleSpace: Container(
-          decoration: BoxDecoration(gradient: _Design(context).primaryGradient),
         ),
-        elevation: 0,
-        scrolledUnderElevation: 0,
+        actions: [_buildThemeToggle(), const SizedBox(width: 16)],
       ),
       drawer: Drawer(
         backgroundColor: _Design(context).surface,
@@ -2373,73 +2318,85 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.fromLTRB(20, 28, 20, 22),
-                decoration: BoxDecoration(
-                  gradient: _Design(context).drawerGradient,
-                  boxShadow: [
-                    BoxShadow(
-                      color: _Design(context).primary.withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+                decoration: BoxDecoration(color: _Design(context).background),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
-                      children: [
-                        Text(
-                          'Let me be your AI Assistant!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: _Design(context).background,
+                        borderRadius: _Design.radiusMd,
+                        boxShadow: _Design(context).shadowSmall,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: _Design(context).primarySoft,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.smart_toy_rounded,
+                              color: _Design(context).primary,
+                              size: 24,
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 6.0),
-                          child: Icon(
-                            Icons.smart_toy_rounded,
-                            color: Colors.white,
-                            size: 18,
+                          const SizedBox(width: 16),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'BowAI',
+                                style: TextStyle(
+                                  color: _Design(context).textPrimary,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                              Text(
+                                'Your Personal AI Assistant',
+                                style: TextStyle(
+                                  color: _Design(context).textTertiary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      'BowAI',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 7,
+                        horizontal: 14,
+                        vertical: 10,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
+                        color: _Design(context).background,
                         borderRadius: _Design.radiusSm,
+                        boxShadow: _Design(context).shadowSmall,
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.auto_awesome,
-                            color: Colors.white,
+                            color: _Design(context).primary,
                             size: 14,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 10),
                           Flexible(
                             child: Text(
                               _shortModel,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: _Design(context).textSecondary,
                                 fontSize: 13,
+                                fontWeight: FontWeight.w600,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -2473,25 +2430,41 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                         vertical: 14,
                       ),
                       decoration: BoxDecoration(
-                        gradient: _Design(context).primaryGradient,
+                        color: _Design(context).background,
                         borderRadius: _Design.radiusLg,
-                        boxShadow: [_Design(context).shadowPrimary],
+                        boxShadow: _Design(context).shadowSmall,
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
-                          Icon(
-                            Icons.add_comment_rounded,
-                            color: Colors.white,
-                            size: 20,
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: _Design(context).primarySoft,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              Icons.add_comment_rounded,
+                              color: _Design(context).primary,
+                              size: 18,
+                            ),
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 14),
                           Text(
                             'New Chat',
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
+                              color: _Design(context).primary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.2,
                             ),
+                          ),
+                          const Spacer(),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            color: _Design(
+                              context,
+                            ).textTertiary.withOpacity(0.4),
+                            size: 20,
                           ),
                         ],
                       ),
@@ -2510,29 +2483,30 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 ),
                 child: Row(
                   children: [
-                    const Text(
-                      'Chat History',
+                    Text(
+                      'Riwayat Chat',
                       style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF334155),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: _Design(context).textPrimary,
+                        letterSpacing: -0.2,
                       ),
                     ),
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 7,
-                        vertical: 1,
+                        horizontal: 8,
+                        vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: _Design(context).primary.withOpacity(0.08),
+                        color: _Design(context).primarySoft,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         '${_chatHistoryList.length}',
                         style: TextStyle(
                           fontSize: 11,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w800,
                           color: _Design(context).primary,
                         ),
                       ),
@@ -2681,9 +2655,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       ),
       body: Stack(
         children: [
-          Container(
-            decoration: BoxDecoration(gradient: _Design(context).bgGradient),
-          ),
+          Container(color: _Design(context).background),
           ClipRect(
             child: Column(
               children: [
@@ -2692,7 +2664,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       ? _buildEmptyState()
                       : ListView.builder(
                           controller: _scrollController,
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.fromLTRB(0, 16, 0, 100),
                           itemCount: _messages.length + (_isLoading ? 1 : 0),
                           itemBuilder: (context, index) {
                             if (index == _messages.length && _isLoading)
@@ -2740,7 +2712,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       decoration: BoxDecoration(
                         color: _Design(context).surface,
                         shape: BoxShape.circle,
-                        boxShadow: [_Design.shadowMd],
+                        boxShadow: _Design(context).shadowSmall,
                       ),
                       child: Icon(
                         Icons.keyboard_arrow_down_rounded,
@@ -2770,7 +2742,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  gradient: _Design(context).primaryGradient,
+                  color: _Design(context).primary,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
@@ -2842,7 +2814,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             color: _Design(context).surface,
             borderRadius: _Design.radiusMd,
             border: Border.all(color: _Design(context).border),
-            boxShadow: [_Design.shadowSm],
+            boxShadow: _Design(context).shadowSmall,
           ),
           child: Text(
             text,
