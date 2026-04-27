@@ -122,7 +122,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   late AnimationController _dotsController;
   late AnimationController _listeningController;
 
-  final OpenRouterService _openRouterService = OpenRouterService(apiKey: '');
+  final OpenRouterService _openRouterService = OpenRouterService(
+    apiKey: 'your-api-key',
+  );
 
   // ── State ──
   int? _editingMessageIndex;
@@ -403,11 +405,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       final p = await SharedPreferences.getInstance();
       final s = p.getString(_historyKey);
       if (s != null) {
-        _chatHistoryList = (jsonDecode(s) as List).cast<Map<String, dynamic>>();
+        final List<dynamic> decoded = jsonDecode(s);
+        setState(() {
+          _chatHistoryList = decoded
+              .whereType<Map>()
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList();
+        });
       }
     } catch (e) {
       debugPrint('Error loading history list: $e');
-      _chatHistoryList = [];
     }
   }
 
@@ -420,69 +427,239 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     }
   }
 
+  // ═══════════════════════════════════════
+  // PERSISTENCE - FIXED VERSION
+  // ═══════════════════════════════════════
+
   Future<void> _persistChat() async {
-    if (_messages.isEmpty) return;
+    if (_messages.isEmpty) {
+      debugPrint('[Persist] Skipping - no messages to save');
+      return;
+    }
+
+    // Capture state to prevent race conditions during async operations
+    final idToSave = _currentConversationId;
+    final messagesToSave = List<ChatMessage>.from(_messages);
+
     try {
-      final title = _messages.first.content.length > 45
-          ? '${_messages.first.content.substring(0, 45)}...'
-          : _messages.first.content;
+      final firstContent = messagesToSave.first.content;
+      final title = firstContent.length > 45
+          ? '${firstContent.substring(0, 45)}...'
+          : firstContent;
       final now = DateTime.now().toIso8601String();
-      final i = _chatHistoryList.indexWhere(
-        (c) => c['id'] == _currentConversationId,
+
+      // Build the JSON BEFORE doing anything else
+      final messagesJson = jsonEncode(
+        messagesToSave.map((m) => m.toJson()).toList(),
       );
+
+      debugPrint('[Persist] Saving conversation: $idToSave');
+      debugPrint('[Persist] Message count: ${messagesToSave.length}');
+      debugPrint('[Persist] JSON length: ${messagesJson.length}');
+
+      final i = _chatHistoryList.indexWhere((c) => c['id'] == idToSave);
       if (i >= 0) {
         _chatHistoryList[i]['title'] = title;
         _chatHistoryList[i]['updatedAt'] = now;
       } else {
         _chatHistoryList.insert(0, {
-          'id': _currentConversationId,
+          'id': idToSave,
           'title': title,
           'updatedAt': now,
         });
       }
+
       await _saveHistoryList();
       final p = await SharedPreferences.getInstance();
-      await p.setString(
-        'conv_$_currentConversationId',
-        jsonEncode(
-          _messages.map((m) => {'content': m.content, 'role': m.role}).toList(),
-        ),
+
+      // Verify save was successful
+      final success = await p.setString('conv_$idToSave', messagesJson);
+
+      // Double-check by reading it back
+      final verify = p.getString('conv_$idToSave');
+      debugPrint('[Persist] Save successful: $success');
+      debugPrint('[Persist] Verification - data exists: ${verify != null}');
+      debugPrint(
+        '[Persist] Verification - data length: ${verify?.length ?? 0}',
       );
-    } catch (e) {
-      debugPrint('Error persisting chat: $e');
+
+      if (!success || verify == null) {
+        debugPrint('[Persist] ERROR: Save verification failed!');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('⚠️ Failed to save chat properly'),
+              backgroundColor: _Design(context).error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } catch (e, stack) {
+      debugPrint('[Persist] ERROR: $e');
+      debugPrint('[Persist] Stack: $stack');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('⚠️ Error saving chat: $e'),
+            backgroundColor: _Design(context).error,
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
     }
   }
 
   Future<void> _loadConvMsgs(String id) async {
+    debugPrint('[Load] Loading conversation: $id');
     _currentConversationId = id;
     _stoppedUserContent = null;
+
     try {
       final p = await SharedPreferences.getInstance();
       final s = p.getString('conv_$id');
-      if (s != null) {
-        final list = jsonDecode(s) as List;
-        _messages.clear();
-        _messages.addAll(
-          list.map((j) => ChatMessage(content: j['content'], role: j['role'])),
-        );
-      } else {
-        _messages.clear();
+
+      debugPrint('[Load] Data found: ${s != null}');
+      debugPrint('[Load] Data length: ${s?.length ?? 0}');
+
+      if (s == null) {
+        debugPrint('[Load] ERROR: No data found for key "conv_$id"');
+        if (mounted) {
+          setState(() => _messages.clear());
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('⚠️ Chat data not found (key: conv_$id)'),
+              backgroundColor: Colors.orange,
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
+        return;
       }
-    } catch (e) {
-      debugPrint('Error loading conversation messages: $e');
-      _messages.clear();
+
+      final List<dynamic> list = jsonDecode(s);
+      debugPrint('[Load] Decoded list count: ${list.length}');
+
+      final List<ChatMessage> loadedMsgs = [];
+      int failCount = 0;
+
+      for (int i = 0; i < list.length; i++) {
+        try {
+          final item = list[i];
+          if (item is! Map) {
+            debugPrint('[Load] Item $i is not a Map: ${item.runtimeType}');
+            failCount++;
+            continue;
+          }
+
+          final msg = ChatMessage.fromJson(Map<String, dynamic>.from(item));
+          loadedMsgs.add(msg);
+          debugPrint(
+            '[Load] Loaded message $i: role=${msg.role}, content length=${msg.content.length}',
+          );
+        } catch (e) {
+          debugPrint('[Load] ERROR loading message $i: $e');
+          debugPrint('[Load] Message data: ${list[i]}');
+          failCount++;
+        }
+      }
+
+      debugPrint('[Load] Successfully loaded: ${loadedMsgs.length}');
+      debugPrint('[Load] Failed to load: $failCount');
+
+      if (mounted) {
+        setState(() {
+          _messages.clear();
+          _messages.addAll(loadedMsgs);
+        });
+
+        if (loadedMsgs.isEmpty && failCount > 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '⚠️ Failed to load $failCount message(s). Data may be corrupted.',
+              ),
+              backgroundColor: Colors.orange,
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+    } catch (e, stack) {
+      debugPrint('[Load] CRITICAL ERROR: $e');
+      debugPrint('[Load] Stack: $stack');
+      if (mounted) {
+        setState(() => _messages.clear());
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '⚠️ Failed to load chat: ${e.toString().substring(0, 100)}',
+            ),
+            backgroundColor: _Design(context).error,
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
   Future<void> _switchConv(String id) async {
+    debugPrint('[Switch] Switching to conversation: $id');
+    debugPrint('[Switch] Current conversation: $_currentConversationId');
+
     await _persistChat();
     await _loadConvMsgs(id);
+
     if (mounted) {
       setState(() {});
       Navigator.pop(context);
-      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToBottom();
+        debugPrint('[Switch] Complete. Messages count: ${_messages.length}');
+      });
     }
   }
+
+  // Future<void> _loadConvMsgs(String id) async {
+  //   _currentConversationId = id;
+  //   _stoppedUserContent = null;
+  //   try {
+  //     final p = await SharedPreferences.getInstance();
+  //     final s = p.getString('conv_$id');
+  //     if (s != null) {
+  //       final List<dynamic> list = jsonDecode(s);
+  //       final loadedMsgs = list
+  //           .whereType<Map>()
+  //           .map((j) => ChatMessage.fromJson(Map<String, dynamic>.from(j)))
+  //           .toList();
+
+  //       if (mounted) {
+  //         setState(() {
+  //           _messages.clear();
+  //           _messages.addAll(loadedMsgs);
+  //         });
+  //       }
+  //     } else {
+  //       if (mounted) setState(() => _messages.clear());
+  //     }
+  //   } catch (e) {
+  //     debugPrint('Error loading conversation messages: $e');
+  //   }
+  // }
+
+  // Future<void> _switchConv(String id) async {
+  //   await _persistChat();
+  //   await _loadConvMsgs(id);
+  //   if (mounted) {
+  //     setState(() {});
+  //     Navigator.pop(context);
+  //     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+  //   }
+  // }
 
   Future<void> _deleteConv(String id) async {
     try {
@@ -497,7 +674,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     await _saveHistoryList();
     if (id == _currentConversationId) {
       Navigator.pop(context);
-      _newChat();
+      await _newChat();
     }
   }
 
@@ -585,11 +762,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   // ═══════════════════════════════════════
   // NEW CHAT - FIXED
   // ═══════════════════════════════════════
-  void _newChat() {
-    _persistChat(); // Don't await - let it run in background
+  Future<void> _newChat() async {
+    await _persistChat();
     if (mounted) {
       setState(() {
-        _currentConversationId = DateTime.now().millisecondsSinceEpoch
+        _currentConversationId = DateTime.now().microsecondsSinceEpoch
             .toString();
         _messages.clear();
         _editingMessageIndex = null;
@@ -2419,10 +2596,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: _Design.radiusLg,
-                    onTap: () {
+                    onTap: () async {
                       // FIX: Close drawer AFTER new chat is initialized
-                      _newChat();
-                      Navigator.pop(context);
+                      await _newChat();
+                      if (mounted) Navigator.pop(context);
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -2597,7 +2774,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              'Gratis',
+                              'Free',
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,

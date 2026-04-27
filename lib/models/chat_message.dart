@@ -38,10 +38,14 @@ class ChatMessage {
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     return ChatMessage(
-      id: json['id'] as String? ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      content: json['content'],
-      role: json['role'],
-      timestamp: DateTime.parse(json['timestamp']),
+      id:
+          json['id'] as String? ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
+      content: json['content'] as String? ?? '',
+      role: json['role'] as String? ?? 'user',
+      timestamp: json['timestamp'] != null
+          ? DateTime.parse(json['timestamp'] as String)
+          : DateTime.now(),
       modelName: json['modelName'] as String?,
       isFile: json['isFile'] as bool? ?? false,
       fileName: json['fileName'] as String?,
