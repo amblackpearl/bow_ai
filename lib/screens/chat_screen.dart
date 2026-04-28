@@ -124,7 +124,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   late AnimationController _listeningController;
 
   final OpenRouterService _openRouterService = OpenRouterService(
-    apiKey: 'your-api-key',
+    apiKey: 'YOUR_API_KEY_HERE',
   );
 
   // ── State ──
@@ -1933,10 +1933,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     try {
       final d = DateTime.parse(iso);
       final diff = DateTime.now().difference(d);
-      if (diff.inMinutes < 1) return 'Baru saja';
-      if (diff.inMinutes < 60) return '${diff.inMinutes}m lalu';
-      if (diff.inHours < 24) return '${diff.inHours}j lalu';
-      if (diff.inDays < 7) return '${diff.inDays}h lalu';
+      if (diff.inMinutes < 1) return 'Just Now';
+      if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+      if (diff.inHours < 24) return '${diff.inHours}h ago';
+      if (diff.inDays < 7) return '${diff.inDays}day ago';
       return '${d.day}/${d.month}/${d.year}';
     } catch (_) {
       return '';
