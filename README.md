@@ -11,14 +11,11 @@ A modern, feature-rich Flutter chat application that gives you a beautiful, intu
 
 ##  Screenshots
 
-*Drag and drop your screenshots here, or upload them to an `assets/screenshots/` folder and reference them directly.*
 
 | Dark Mode Chat | Light Mode Conversation |
 |:---------------:|:----------------------:|
 | ![Dark Mode](assets/2.jpeg) | ![Light Mode](assets/4.jpeg) |
 
-
-> **Tip:** Animated GIFs work great for showing the theme switcher or voice input in action.
 
 ---
 
