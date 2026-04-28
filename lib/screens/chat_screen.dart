@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:iconly/iconly.dart';
+// import 'package:iconly/iconly.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
@@ -35,7 +35,7 @@ class _Design {
 
   // 10% Action Elements (High-contrast Deep Blue or Teal)
   Color get primary => const Color(0xFF1A73E8); // Professional Deep Blue
-  Color get primarySoft => primary.withOpacity(0.12);
+  Color get primarySoft => primary.withValues(alpha: 0.12);
   Color get accent =>
       isDark ? const Color(0xFF4FC3F7) : const Color(0xFF0D47A1);
 
@@ -46,25 +46,26 @@ class _Design {
   Color get textTertiary =>
       isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
 
-  Color get border => isDark ? Colors.white10 : Colors.black.withOpacity(0.05);
+  Color get border =>
+      isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05);
   Color get inputBg => background;
 
   Color get error => const Color(0xFFDC2626);
   Color get success => const Color(0xFF059669);
-  Color get dotLight => primary.withOpacity(0.2);
+  Color get dotLight => primary.withValues(alpha: 0.2);
 
   // Neumorphic Shadows
   List<BoxShadow> get shadowExtruded => [
     BoxShadow(
       color: isDark
-          ? Colors.black.withOpacity(0.4)
-          : const Color(0xFFA3B1C6).withOpacity(0.6),
+          ? Colors.black.withValues(alpha: 0.4)
+          : const Color(0xFFA3B1C6).withValues(alpha: 0.6),
       offset: const Offset(5, 5),
       blurRadius: 10,
       spreadRadius: 1,
     ),
     BoxShadow(
-      color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
+      color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
       offset: const Offset(-5, -5),
       blurRadius: 10,
       spreadRadius: 1,
@@ -74,13 +75,13 @@ class _Design {
   List<BoxShadow> get shadowSmall => [
     BoxShadow(
       color: isDark
-          ? Colors.black.withOpacity(0.4)
-          : const Color(0xFFA3B1C6).withOpacity(0.5),
+          ? Colors.black.withValues(alpha: 0.4)
+          : const Color(0xFFA3B1C6).withValues(alpha: 0.5),
       offset: const Offset(3, 3),
       blurRadius: 6,
     ),
     BoxShadow(
-      color: isDark ? Colors.white.withOpacity(0.04) : Colors.white,
+      color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white,
       offset: const Offset(-3, -3),
       blurRadius: 6,
     ),
@@ -100,7 +101,7 @@ class _Design {
   static BorderRadius get radiusInput => BorderRadius.circular(30);
 
   BoxShadow get shadowPrimary => BoxShadow(
-    color: primary.withOpacity(0.3),
+    color: primary.withValues(alpha: 0.3),
     blurRadius: 14,
     offset: const Offset(0, 4),
   );
@@ -177,37 +178,37 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     {
       'name': 'meta-llama/llama-3.3-70b-instruct',
       'type': 'free',
-      'note': '💬 Chat Umum',
+      'note': '💬 General Chat',
       'capabilities': 'text',
     },
     {
       'name': 'meta-llama/llama-3.1-70b-instruct',
       'type': 'free',
-      'note': '💬 Chat Umum',
+      'note': '💬 General Chat',
       'capabilities': 'text',
     },
     {
       'name': 'qwen/qwen-2.5-72b-instruct',
       'type': 'free',
-      'note': '💬 Chat Umum',
+      'note': '💬 General Chat',
       'capabilities': 'text',
     },
     {
       'name': 'qwen/qwen-2.5-7b-instruct',
       'type': 'free',
-      'note': '💬 Chat Umum',
+      'note': '💬 General Chat',
       'capabilities': 'text',
     },
     {
       'name': 'mistralai/mistral-small-24b-instruct-2501',
       'type': 'free',
-      'note': '💬 Chat Umum',
+      'note': '💬 General Chat',
       'capabilities': 'text',
     },
     {
       'name': 'nvidia/llama-3.1-nemotron-70b-instruct',
       'type': 'free',
-      'note': '💬 Chat Umum',
+      'note': '💬 General Chat',
       'capabilities': 'text',
     },
     {
@@ -261,31 +262,31 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     {
       'name': 'microsoft/phi-4',
       'type': 'free',
-      'note': '🔧 Ringan',
+      'note': '🔧 Lightweight',
       'capabilities': 'text',
     },
     {
       'name': 'arcee-ai/trinity-mini',
       'type': 'free',
-      'note': '🔧 Ringan',
+      'note': '🔧 Lightweight',
       'capabilities': 'text',
     },
     {
       'name': 'nousresearch/hermes-3-llama-3.1-405b',
       'type': 'free',
-      'note': '🧪 Eksperimental',
+      'note': '🧪 Experimental',
       'capabilities': 'text',
     },
     {
       'name': 'rekaai/reka-flash-3',
       'type': 'free',
-      'note': '🧪 Eksperimental',
+      'note': '🧪 Experimental',
       'capabilities': 'text',
     },
     {
       'name': 'inflection/inflection-3-pi',
       'type': 'free',
-      'note': '🧪 Eksperimental',
+      'note': '🧪 Experimental',
       'capabilities': 'text',
     },
   ];
@@ -699,7 +700,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           textCapitalization: TextCapitalization.sentences,
           style: TextStyle(fontSize: 15, color: _Design(context).textPrimary),
           decoration: InputDecoration(
-            hintText: 'Nama chat...',
+            hintText: 'Chat name...',
             hintStyle: TextStyle(color: _Design(context).textTertiary),
             filled: true,
             fillColor: _Design(context).inputBg,
@@ -729,7 +730,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
-              'Batal',
+              'Cancel',
               style: TextStyle(color: _Design(context).textSecondary),
             ),
           ),
@@ -742,7 +743,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               foregroundColor: _Design(context).primary,
             ),
             child: const Text(
-              'Simpan',
+              'Save',
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
@@ -776,7 +777,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Chat baru dimulai!'),
+          content: Text('New chat started!'),
           duration: Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -864,7 +865,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Memproses gambar...'),
+                content: Text('Processing image...'),
                 duration: Duration(milliseconds: 500),
               ),
             );
@@ -876,7 +877,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Membaca file...'),
+                content: Text('Reading file...'),
                 duration: Duration(milliseconds: 500),
               ),
             );
@@ -1253,7 +1254,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 children: [
                   Icon(Icons.mic_off, color: Colors.white, size: 18),
                   SizedBox(width: 8),
-                  Text('Speech recognition tidak tersedia di perangkat ini'),
+                  Text('Speech recognition not available on this device'),
                 ],
               ),
               duration: Duration(seconds: 3),
@@ -1312,7 +1313,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           setState(() => _isListening = false);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Gagal memulai speech recognition: $e'),
+              content: Text('Failed to start speech recognition: $e'),
               duration: const Duration(seconds: 2),
               backgroundColor: _Design(context).error,
               behavior: SnackBarBehavior.floating,
@@ -1370,7 +1371,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     Clipboard.setData(ClipboardData(text: c));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Disalin ke clipboard!'),
+        content: Text('Copied to clipboard!'),
         duration: Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
@@ -1465,7 +1466,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               height: 8 * scale + 4,
               decoration: BoxDecoration(
                 color: Color.lerp(
-                  _Design(context).error.withOpacity(0.3),
+                  _Design(context).error.withValues(alpha: 0.3),
                   _Design(context).error,
                   scale,
                 ),
@@ -1522,16 +1523,18 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: _Design(context).primary.withOpacity(0.05),
+        color: _Design(context).primary.withValues(alpha: 0.05),
         borderRadius: _Design.radiusMd,
-        border: Border.all(color: _Design(context).primary.withOpacity(0.15)),
+        border: Border.all(
+          color: _Design(context).primary.withValues(alpha: 0.15),
+        ),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: _Design(context).primary.withOpacity(0.1),
+              color: _Design(context).primary.withValues(alpha: 0.1),
               borderRadius: _Design.radiusSm,
             ),
             child: Icon(
@@ -1571,7 +1574,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             child: Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: _Design(context).error.withOpacity(0.08),
+                color: _Design(context).error.withValues(alpha: 0.08),
                 borderRadius: _Design.radiusSm,
               ),
               child: Icon(
@@ -1593,9 +1596,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: _Design(context).error.withOpacity(0.05),
+        color: _Design(context).error.withValues(alpha: 0.05),
         borderRadius: _Design.radiusMd,
-        border: Border.all(color: _Design(context).error.withOpacity(0.2)),
+        border: Border.all(
+          color: _Design(context).error.withValues(alpha: 0.2),
+        ),
       ),
       child: Row(
         children: [
@@ -1673,15 +1678,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               boxShadow: [
                 BoxShadow(
                   color: design.isDark
-                      ? Colors.black.withOpacity(0.5)
-                      : const Color(0xFFA3B1C6).withOpacity(0.4),
+                      ? Colors.black.withValues(alpha: 0.5)
+                      : const Color(0xFFA3B1C6).withValues(alpha: 0.4),
                   offset: const Offset(4, 4),
                   blurRadius: 8,
                   spreadRadius: 1,
                 ),
                 BoxShadow(
                   color: design.isDark
-                      ? Colors.white.withOpacity(0.04)
+                      ? Colors.white.withValues(alpha: 0.04)
                       : Colors.white,
                   offset: const Offset(-4, -4),
                   blurRadius: 8,
@@ -1807,32 +1812,32 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildAppBarAction({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    final design = _Design(context);
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onTap,
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: design.background,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: design.shadowSmall,
-            ),
-            child: Icon(icon, color: design.primary, size: 20),
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _buildAppBarAction({
+  //   required IconData icon,
+  //   required VoidCallback onTap,
+  // }) {
+  //   final design = _Design(context);
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(vertical: 8),
+  //     child: Material(
+  //       color: Colors.transparent,
+  //       child: InkWell(
+  //         borderRadius: BorderRadius.circular(12),
+  //         onTap: onTap,
+  //         child: Container(
+  //           width: 40,
+  //           height: 40,
+  //           decoration: BoxDecoration(
+  //             color: design.background,
+  //             borderRadius: BorderRadius.circular(12),
+  //             boxShadow: design.shadowSmall,
+  //           ),
+  //           child: Icon(icon, color: design.primary, size: 20),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildThemeToggle() {
     final design = _Design(context);
@@ -1866,7 +1871,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     boxShadow: [
                       BoxShadow(
                         color: (isDark ? design.primary : Colors.orange)
-                            .withOpacity(0.3),
+                            .withValues(alpha: 0.3),
                         blurRadius: 6,
                         offset: const Offset(0, 2),
                       ),
@@ -1943,13 +1948,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: isSelected
-            ? Colors.white.withOpacity(0.2)
-            : color.withOpacity(0.08),
+            ? Colors.white.withValues(alpha: 0.2)
+            : color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
           color: isSelected
-              ? Colors.white.withOpacity(0.4)
-              : color.withOpacity(0.2),
+              ? Colors.white.withValues(alpha: 0.4)
+              : color.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -2062,10 +2067,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         width: 28,
         height: 28,
         decoration: BoxDecoration(
-          color: baseColor.withOpacity(0.08),
+          color: baseColor.withValues(alpha: 0.08),
           borderRadius: _Design.radiusSm,
         ),
-        child: Icon(icon, size: 14, color: baseColor.withOpacity(0.6)),
+        child: Icon(icon, size: 14, color: baseColor.withValues(alpha: 0.6)),
       ),
     );
   }
@@ -2073,15 +2078,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   void _showModelPicker() {
     final grouped = <String, List<Map<String, String>>>{};
     for (final m in _models) {
-      grouped.putIfAbsent(m['note'] ?? 'Lainnya', () => []).add(m);
+      grouped.putIfAbsent(m['note'] ?? 'Others', () => []).add(m);
     }
     const order = [
       '⭐ Recommended',
-      '💬 Chat Umum',
+      '💬 General Chat',
       '💻 Coding',
       '🧠 Reasoning',
-      '🔧 Ringan',
-      '🧪 Eksperimental',
+      '🔧 Lightweight',
+      '🧪 Experimental',
     ];
     final sorted = [
       ...order
@@ -2134,7 +2139,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Pilih Model AI',
+                          'Select AI Model',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -2144,7 +2149,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                         ),
                         const SizedBox(height: 1),
                         Text(
-                          'Optimalkan chat dengan model terbaik',
+                          'Optimize chat with the best model',
                           style: TextStyle(
                             fontSize: 12,
                             color: _Design(context).textTertiary,
@@ -2175,7 +2180,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Aktif Sekarang:',
+                    'Active model:',
                     style: TextStyle(
                       fontSize: 13,
                       color: _Design(context).textSecondary,
@@ -2400,7 +2405,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                                             ),
                                           ),
                                           child: const Text(
-                                            'AKTIF',
+                                            'ACTIVE',
                                             style: TextStyle(
                                               fontSize: 9,
                                               fontWeight: FontWeight.bold,
@@ -2640,7 +2645,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                             Icons.chevron_right_rounded,
                             color: _Design(
                               context,
-                            ).textTertiary.withOpacity(0.4),
+                            ).textTertiary.withValues(alpha: 0.4),
                             size: 20,
                           ),
                         ],
@@ -2661,7 +2666,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 child: Row(
                   children: [
                     Text(
-                      'Riwayat Chat',
+                      'Chat History',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
@@ -2704,7 +2709,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'Belum ada history',
+                              'No chat history',
                               style: TextStyle(
                                 color: _Design(context).textTertiary,
                                 fontSize: 13,
@@ -2756,7 +2761,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'Pilih Model',
+                              'Select Model',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
@@ -2770,7 +2775,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color: _Design(context).primary.withOpacity(0.08),
+                              color: _Design(
+                                context,
+                              ).primary.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -2814,7 +2821,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Tap ✏️ rename, 🗑️ hapus. Tap chip model di AppBar untuk ganti cepat.',
+                          'Tap ✏️ rename, 🗑️ delete. Tap model chip in AppBar to switch quickly.',
                           style: TextStyle(
                             fontSize: 11,
                             color: _Design(context).textTertiary,
@@ -2923,8 +2930,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: _Design(context).primary.withOpacity(
-                        0.2 + _pulseController.value * 0.15,
+                      color: _Design(context).primary.withValues(
+                        alpha: 0.2 + _pulseController.value * 0.15,
                       ),
                       blurRadius: 24 + _pulseController.value * 8,
                     ),
@@ -2939,7 +2946,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             ),
             const SizedBox(height: 24),
             Text(
-              'Halo! Saya BowAI 👋',
+              'Hi! I\'m BowAI 👋',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -2948,7 +2955,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             ),
             const SizedBox(height: 8),
             Text(
-              'Ketik pertanyaan, upload file, atau gunakan\nvoice input untuk memulai percakapan.',
+              'Type your question, upload a file, or use\nvoice input to start the conversation.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -2962,10 +2969,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               runSpacing: 8,
               alignment: WrapAlignment.center,
               children: [
-                _chip('💡 Jelaskan konsep'),
-                _chip('💻 Bantu coding'),
-                _chip('✍️ Tulis email'),
-                _chip('🧠 Brainstorm ide'),
+                _chip('💡 Explain concepts'),
+                _chip('💻 Help with coding'),
+                _chip('✍️ Write emails'),
+                _chip('🧠 Brainstorm ideas'),
               ],
             ),
             const SizedBox(height: 20),

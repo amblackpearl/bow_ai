@@ -35,13 +35,18 @@ class ChatMessageWidget extends StatelessWidget {
         border: isUser
             ? null
             : Border(
-                top: BorderSide(color: Colors.grey.withOpacity(0.1), width: 1),
+                top: BorderSide(
+                  color: Colors.grey.withValues(alpha: 0.1),
+                  width: 1,
+                ),
                 bottom: BorderSide(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withValues(alpha: 0.1),
                   width: 1,
                 ),
               ),
-        color: isUser ? Colors.transparent : Colors.grey.withOpacity(0.02),
+        color: isUser
+            ? Colors.transparent
+            : Colors.grey.withValues(alpha: 0.02),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,61 +63,61 @@ class ChatMessageWidget extends StatelessWidget {
                     ? CrossAxisAlignment.end
                     : CrossAxisAlignment.start,
                 children: [
-                // ╔══════════════════════════════════════════════════════╗
-                // ║  FIX #2: Model indicator for AI messages             ║
-                // ╚══════════════════════════════════════════════════════╝
-                if (!isUser && message.modelName != null)
-                  _buildModelIndicator(context),
+                  // ╔══════════════════════════════════════════════════════╗
+                  // ║  FIX #2: Model indicator for AI messages             ║
+                  // ╚══════════════════════════════════════════════════════╝
+                  if (!isUser && message.modelName != null)
+                    _buildModelIndicator(context),
 
-                // Sender Name
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                    isUser ? 'You' : 'Assistant',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: isUser
-                          ? Theme.of(context).colorScheme.primary
-                          : (Theme.of(context).brightness == Brightness.dark
-                                ? Colors.grey.shade400
-                                : Colors.grey.shade600),
-                      letterSpacing: 0.5,
+                  // Sender Name
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      isUser ? 'You' : 'Assistant',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: isUser
+                            ? Theme.of(context).colorScheme.primary
+                            : (Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.grey.shade400
+                                  : Colors.grey.shade600),
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
-                ),
 
-                // ╔══════════════════════════════════════════════════════╗
-                // ║  FIX #1: Wrap with SelectionArea for multi-line      ║
-                // ║  text selection                                     ║
-                // ╚══════════════════════════════════════════════════════╝
-                SelectionArea(
-                  child: isUser
-                      ? _buildUserMessage(context)
-                      : _buildAIMessage(context),
-                ),
-
-                // Action Buttons
-                Padding(
-                  padding: const EdgeInsets.only(top: 12.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: isUser
-                        ? MainAxisAlignment.end
-                        : MainAxisAlignment.start,
-                    children: isUser
-                        ? _buildUserActionButtons()
-                        : _buildAIActionButtons(),
+                  // ╔══════════════════════════════════════════════════════╗
+                  // ║  FIX #1: Wrap with SelectionArea for multi-line      ║
+                  // ║  text selection                                     ║
+                  // ╚══════════════════════════════════════════════════════╝
+                  SelectionArea(
+                    child: isUser
+                        ? _buildUserMessage(context)
+                        : _buildAIMessage(context),
                   ),
-                ),
-              ],
+
+                  // Action Buttons
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: isUser
+                          ? MainAxisAlignment.end
+                          : MainAxisAlignment.start,
+                      children: isUser
+                          ? _buildUserActionButtons()
+                          : _buildAIActionButtons(),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   // ╔══════════════════════════════════════════════════════╗
   // ║  FIX #2: Model indicator widget                     ║
@@ -126,9 +131,9 @@ class ChatMessageWidget extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8.0),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: primaryColor.withOpacity(0.08),
+        color: primaryColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: primaryColor.withOpacity(0.15)),
+        border: Border.all(color: primaryColor.withValues(alpha: 0.15)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -164,13 +169,13 @@ class ChatMessageWidget extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: isDark
-                ? Colors.black.withOpacity(0.4)
-                : const Color(0xFFA3B1C6).withOpacity(0.6),
+                ? Colors.black.withValues(alpha: 0.4)
+                : const Color(0xFFA3B1C6).withValues(alpha: 0.6),
             offset: const Offset(5, 5),
             blurRadius: 10,
           ),
           BoxShadow(
-            color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
+            color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
             offset: const Offset(-5, -5),
             blurRadius: 10,
           ),
@@ -201,15 +206,15 @@ class ChatMessageWidget extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: isDark
-                ? Colors.black.withOpacity(0.3)
-                : const Color(0xFFA3B1C6).withOpacity(0.4),
+                ? Colors.black.withValues(alpha: 0.3)
+                : const Color(0xFFA3B1C6).withValues(alpha: 0.4),
             offset: const Offset(4, 4),
             blurRadius: 8,
           ),
           BoxShadow(
             color: isDark
-                ? Colors.white.withOpacity(0.03)
-                : Colors.white.withOpacity(0.8),
+                ? Colors.white.withValues(alpha: 0.03)
+                : Colors.white.withValues(alpha: 0.8),
             offset: const Offset(-4, -4),
             blurRadius: 8,
           ),
@@ -231,8 +236,10 @@ class ChatMessageWidget extends StatelessWidget {
         ? (isDark ? Colors.white : const Color(0xFF1E293B))
         : (isDark ? Colors.grey.shade300 : Colors.grey.shade900);
     final codeBgColor = isUser
-        ? (isDark ? Colors.white24 : Colors.black.withOpacity(0.05))
-        : (isDark ? const Color(0xFF2D2D2D) : Colors.black.withOpacity(0.05));
+        ? (isDark ? Colors.white24 : Colors.black.withValues(alpha: 0.05))
+        : (isDark
+              ? const Color(0xFF2D2D2D)
+              : Colors.black.withValues(alpha: 0.05));
     final codeTextColor = isUser
         ? (isDark ? Colors.white : const Color(0xFF1E293B))
         : (isDark ? Colors.grey.shade300 : Colors.grey.shade800);
@@ -240,7 +247,7 @@ class ChatMessageWidget extends StatelessWidget {
         ? (isDark ? Colors.white70 : Colors.grey.shade700)
         : (isDark ? Colors.grey.shade400 : Colors.grey.shade700);
     final blockquoteBgColor = isUser
-        ? (isDark ? Colors.white24 : Colors.black.withOpacity(0.03))
+        ? (isDark ? Colors.white24 : Colors.black.withValues(alpha: 0.03))
         : (isDark ? Colors.grey.shade800 : Colors.grey.shade900);
 
     return MarkdownStyleSheet(
@@ -263,7 +270,7 @@ class ChatMessageWidget extends StatelessWidget {
             ? []
             : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.2 : 0.05),
+                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -453,7 +460,7 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
     final textColor = isDark ? Colors.white : Colors.black87;
     final btnBgColor = isDark
         ? const Color(0x60606060)
-        : Colors.black.withOpacity(0.05);
+        : Colors.black.withValues(alpha: 0.05);
 
     return Material(
       color: Colors.transparent,
@@ -562,10 +569,14 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: _getLanguageColor(language).withOpacity(0.15),
+                        color: _getLanguageColor(
+                          language,
+                        ).withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(6),
                         border: Border.all(
-                          color: _getLanguageColor(language).withOpacity(0.3),
+                          color: _getLanguageColor(
+                            language,
+                          ).withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -637,11 +648,13 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
         padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
         decoration: BoxDecoration(
           color: isUser
-              ? Colors.white.withOpacity(0.2)
-              : Colors.grey.withOpacity(0.1),
+              ? Colors.white.withValues(alpha: 0.2)
+              : Colors.grey.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(6.0),
           border: Border.all(
-            color: isUser ? Colors.transparent : Colors.grey.withOpacity(0.2),
+            color: isUser
+                ? Colors.transparent
+                : Colors.grey.withValues(alpha: 0.2),
           ),
         ),
         child: Text(
@@ -803,7 +816,7 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
       case 'sql':
         return const Color(0xFF4479A1);
       default:
-        return const Color(0xFFCCCCCC).withOpacity(0.7);
+        return const Color(0xFFCCCCCC).withValues(alpha: 0.7);
     }
   }
 
