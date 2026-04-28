@@ -17,9 +17,6 @@ A modern, feature-rich Flutter chat application that gives you a beautiful, intu
 |:---------------:|:----------------------:|
 | ![Dark Mode](assets/preview/2.jpeg) | ![Light Mode](assets/preview/4.jpeg) |
 
-<!-- | Document Analysis | Voice Input |
-|:----------------:|:-----------:|
-| ![Document Parsing](assets/screenshots/document_parsing.png) | ![Speech to Text](assets/screenshots/speech_to_text.png) | -->
 
 > **Tip:** Animated GIFs work great for showing the theme switcher or voice input in action.
 
@@ -155,12 +152,6 @@ flutter run
 *   **No App Icon** – intentionally minimal; you’re welcome to add your own.
 *   **Unsigned APK** – First install may trigger a Google Play Protect warning. Just tap *Install anyway*.
 
-
-<!-- ##  Roadmap / Ideas
-- [] Add support for Chat Completions streaming.
-- [ ] Export conversations as PDF / Markdown.
-- [ ] Plugin system for custom tools (calculator, web search, etc.).
-- [ ] Unit & widget tests. -->
 
 ---
 
