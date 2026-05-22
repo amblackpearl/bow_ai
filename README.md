@@ -1,11 +1,18 @@
+<div align="center">
+
 # BowAI
 
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE) [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-green.svg)](https://opensource.org/)
 [![Flutter](https://img.shields.io/badge/Flutter-3.11.5+-blue?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.x-blue?logo=dart)](https://dart.dev)
 [![OpenRouter](https://img.shields.io/badge/API-OpenRouter-purple)](https://openrouter.ai/)
+[![GitHub Stars](https://img.shields.io/github/stars/amblackpearl/ToolE.svg?style=social)](https://github.com/amblackpearl/bow_ai/stargazers) 
+[![GitHub Forks](https://img.shields.io/github/forks/amblackpearl/ToolE.svg?style=social)](https://github.com/amblackpearl/bow_ai/network) 
+[![GitHub Issues](https://img.shields.io/github/issues/amblackpearl/bow_ai)](https://github.com/amblackpearl/bow_ai/issues)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Web%20%7C%20Android%20%7C%20iOS%20%7C%20Windows%20%7C%20macOS-lightgrey)]()
 
-A modern, feature-rich Flutter chat application that gives you a beautiful, intuitive interface to converse with a wide range of AI models—all powered by a single OpenRouter API key.
+A modern, feature-rich Flutter AI chat application that gives you a beautiful, intuitive interface to converse with a wide range of AI models—all powered by a single OpenRouter API key.
+</div>
 
 ---
 
