@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:bow_ai/screens/chat_screen.dart';
-import 'package:bow_ai/services/theme_service.dart';
+import 'package:JagadAI/screens/chat_screen.dart';
+import 'package:JagadAI/services/theme_service.dart';
+import 'package:JagadAI/services/api_profile_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,14 +16,21 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final ThemeService _themeService = ThemeService();
+  final ApiProfileService _profileService = ApiProfileService();
+
+  @override
+  void initState() {
+    super.initState();
+    _profileService.load();
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: _themeService,
+      listenable: Listenable.merge([_themeService, _profileService]),
       builder: (context, _) {
         return MaterialApp(
-          title: 'BowAI',
+          title: 'JagadAI',
           themeMode: _themeService.themeMode,
           theme: ThemeData(
             useMaterial3: true,
@@ -38,7 +46,10 @@ class _MyAppState extends State<MyApp> {
               brightness: Brightness.dark,
             ),
           ),
-          home: ChatScreen(themeService: _themeService),
+          home: ChatScreen(
+            themeService: _themeService,
+            profileService: _profileService,
+          ),
         );
       },
     );

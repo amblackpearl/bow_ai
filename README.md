@@ -5,29 +5,26 @@
 [![OpenRouter](https://img.shields.io/badge/API-OpenRouter-purple)](https://openrouter.ai/)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Web%20%7C%20Android%20%7C%20iOS%20%7C%20Windows%20%7C%20macOS-lightgrey)]()
 
-A modern, feature-rich Flutter chat application that gives you a beautiful, intuitive interface to converse with a wide range of AI models—all powered by a single OpenRouter API key.
+Your ultimate, all-in-one AI client. A stunning, feature-rich Flutter chat app that lets you connect to major AI providers, OpenRouter, and custom endpoints with full support for text, voice, images, and document processing.
 
 ---
 
 ##  Screenshots
-
-*Drag and drop your screenshots here, or upload them to an `assets/screenshots/` folder and reference them directly.*
 
 | Dark Mode Chat | Light Mode Conversation |
 |:---------------:|:----------------------:|
 | ![Dark Mode](assets/preview/2.jpeg) | ![Light Mode](assets/preview/4.jpeg) |
 
 
-> **Tip:** Animated GIFs work great for showing the theme switcher or voice input in action.
 
 ---
 
 ## ✨ Key Features
 
-###  Unlimited AI Model Access
-* **22 Free Models** – Switch between the latest models from OpenAI, Anthropic, Google, and more.
-* **One API Key** – All models are routed through [OpenRouter](https://openrouter.ai/), so you only need a single key.
-* **Model‑specific personality** – Different models shine in different tasks: coding, creative writing, reasoning, etc.
+### 🌐 Multi-Provider AI Support
+* **Extensive API Integrations** – Connect directly to major AI providers including OpenRouter, OpenAI, Google Gemini, Anthropic, Groq, Qwen, GLM, and Kimi.
+* **Custom Endpoints** – Support for any custom OpenAI-compatible API (e.g., local models via Ollama/LM Studio or third-party proxies).
+* **Model Discovery** – Automatically fetches and lists available models based on your active provider, including free and advanced reasoning models.
 
 ###  Multimodal Input
 * **Images** – Send photos and have the AI describe, analyse, or answer questions about them.
@@ -134,17 +131,16 @@ flutter run
 
 ---
 
-##  Latest Release: v2.0.1
+##  Latest Release: v3.0.1
 
-**What’s New (2026‑04‑28)**
-*   Added 22 free AI models via OpenRouter.
-*   Redesigned UI with Neumorphism styling.
-*   Voice recognition (speech‑to‑text).
-*   Media picker for images.
-*   Fixed chat history persistence.
-*   Full English localisation.
+**What’s New (2026‑07‑26)**
+* Support multiple provider AI such as Deepseek, Google Gemini, Ollama, Qwen, GLM, Kimi, and other AI
+* Support custom endpoint AI
+* Add API profiles based on providers
+* Add custom API profile
+* Add max tokens to response
 
-[Download APKs](https://github.com/amblackpearl/bow_ai/releases/tag/v2.0.1) | [Full Changelog](https://github.com/amblackpearl/bow_ai/releases)
+[Download APKs](https://github.com/amblackpearl/bow_ai/releases/tag/v3.0.1) | [Full Changelog](https://github.com/amblackpearl/bow_ai/releases)
 
 ---
 

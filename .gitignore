@@ -36,6 +36,7 @@ migrate_working_dir/
 /ios/
 /web/
 /windows/
+/.claude/
 
 # Symbolication related
 app.*.symbols

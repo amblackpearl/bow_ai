@@ -11,11 +11,13 @@ import 'package:file_selector/file_selector.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import '../models/chat_message.dart';
-import '../services/openrouter_service.dart';
+import '../services/ai_api_service.dart';
+import '../services/api_profile_service.dart';
 import '../services/conversation_service.dart';
 import '../services/document_parser_service.dart';
 import '../services/theme_service.dart';
 import '../widgets/chat_message_widget.dart';
+import 'settings_screen.dart';
 
 // ═══════════════════════════════════════════════════
 // DESIGN SYSTEM
@@ -109,7 +111,13 @@ class _Design {
 
 class ChatScreen extends StatefulWidget {
   final ThemeService? themeService;
-  const ChatScreen({super.key, this.themeService});
+  final ApiProfileService profileService;
+
+  const ChatScreen({
+    super.key,
+    this.themeService,
+    required this.profileService,
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -122,10 +130,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   late AnimationController _pulseController;
   late AnimationController _dotsController;
   late AnimationController _listeningController;
-
-  final OpenRouterService _openRouterService = OpenRouterService(
-    apiKey: 'YOUR_API_KEY_HERE',
-  );
 
   // ── State ──
   int? _editingMessageIndex;
@@ -152,150 +156,19 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   static const int _recentTurns = 6;
   static const String _historyKey = 'bowai_history_list';
 
-  // ── Models ──
-  // Capabilities legend:
-  //   'text'       → text-only input (TXT, PDF, DOCX, PPTX via text extraction)
-  //   'text,image' → text + image input (JPG, PNG, GIF, WEBP via base64)
-  final List<Map<String, String>> _models = [
-    {
-      'name': 'anthropic/claude-3-haiku',
-      'type': 'free',
-      'note': '⭐ Recommended',
-      'capabilities': 'text,image',
-    },
-    {
-      'name': 'deepseek/deepseek-chat',
-      'type': 'free',
-      'note': '⭐ Recommended',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'meta-llama/llama-3.1-8b-instruct',
-      'type': 'free',
-      'note': '⭐ Recommended',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'meta-llama/llama-3.3-70b-instruct',
-      'type': 'free',
-      'note': '💬 General Chat',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'meta-llama/llama-3.1-70b-instruct',
-      'type': 'free',
-      'note': '💬 General Chat',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'qwen/qwen-2.5-72b-instruct',
-      'type': 'free',
-      'note': '💬 General Chat',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'qwen/qwen-2.5-7b-instruct',
-      'type': 'free',
-      'note': '💬 General Chat',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'mistralai/mistral-small-24b-instruct-2501',
-      'type': 'free',
-      'note': '💬 General Chat',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'nvidia/llama-3.1-nemotron-70b-instruct',
-      'type': 'free',
-      'note': '💬 General Chat',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'qwen/qwen-2.5-coder-32b-instruct',
-      'type': 'free',
-      'note': '💻 Coding',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'google/gemma-2-27b-it',
-      'type': 'free',
-      'note': '💻 Coding',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'deepseek/deepseek-r1',
-      'type': 'free',
-      'note': '🧠 Reasoning',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'deepseek/deepseek-r1-distill-llama-70b',
-      'type': 'free',
-      'note': '🧠 Reasoning',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'deepseek/deepseek-r1-distill-qwen-32b',
-      'type': 'free',
-      'note': '🧠 Reasoning',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'deepseek/deepseek-r1-0528',
-      'type': 'free',
-      'note': '🧠 Reasoning',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'z-ai/glm-4.5-air',
-      'type': 'free',
-      'note': '🧠 Reasoning',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'qwen/qwq-32b',
-      'type': 'free',
-      'note': '🧠 Reasoning',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'microsoft/phi-4',
-      'type': 'free',
-      'note': '🔧 Lightweight',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'arcee-ai/trinity-mini',
-      'type': 'free',
-      'note': '🔧 Lightweight',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'nousresearch/hermes-3-llama-3.1-405b',
-      'type': 'free',
-      'note': '🧪 Experimental',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'rekaai/reka-flash-3',
-      'type': 'free',
-      'note': '🧪 Experimental',
-      'capabilities': 'text',
-    },
-    {
-      'name': 'inflection/inflection-3-pi',
-      'type': 'free',
-      'note': '🧪 Experimental',
-      'capabilities': 'text',
-    },
-  ];
+  // ── Models & API ──
+  List<Map<String, String>> _models = [];
+  bool _isLoadingModels = false;
+  String _selectedModel = '';
 
-  String _selectedModel = 'anthropic/claude-3-haiku';
-  String get _shortModel => _selectedModel.split('/').last;
+  String get _shortModel {
+    if (_selectedModel.isEmpty) return 'Select Model';
+    return _selectedModel.split('/').last;
+  }
 
   /// Get capabilities of the currently selected model
   String get _selectedModelCapabilities {
+    if (_models.isEmpty) return 'text';
     final model = _models.firstWhere(
       (m) => m['name'] == _selectedModel,
       orElse: () => {'capabilities': 'text'},
@@ -386,19 +259,135 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _initLoad() async {
-    try {
-      final m = await ConversationService.getModelPreference();
-      if (m != null && _models.any((x) => x['name'] == m)) {
-        _selectedModel = m;
-      }
-    } catch (e) {
-      debugPrint('Error loading model preference: $e');
+    // 1. Load profiles from widget's service
+    if (!widget.profileService.isLoaded) {
+      await widget.profileService.load();
     }
+
+    // 2. Fetch models for active profile
+    await _refreshModels();
+
+    // 3. Load chat history
     await _loadHistoryList();
     if (_chatHistoryList.isNotEmpty) {
       await _loadConvMsgs(_chatHistoryList.first['id'] as String);
     }
+
     if (mounted) setState(() {});
+
+    // 4. Show onboarding if no profiles exist
+    if (!widget.profileService.hasProfiles) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showSetupDialog();
+      });
+    }
+  }
+
+  Future<void> _refreshModels() async {
+    final profile = widget.profileService.activeProfile;
+    if (profile == null) {
+      setState(() {
+        _models = [];
+        _selectedModel = '';
+      });
+      return;
+    }
+
+    setState(() => _isLoadingModels = true);
+    try {
+      final service = AiApiService(profile: profile);
+      final models = await service.fetchAvailableModels();
+      if (mounted) {
+        setState(() {
+          _models = models;
+          // Set selected model: prefer profile's saved model, fallback to first in list
+          if (profile.selectedModel != null &&
+              models.any((m) => m['name'] == profile.selectedModel)) {
+            _selectedModel = profile.selectedModel!;
+          } else if (models.isNotEmpty) {
+            _selectedModel = models.first['name']!;
+            widget.profileService.setActiveModel(_selectedModel);
+          } else {
+            _selectedModel = '';
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching models: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load models: $e'),
+            backgroundColor: _Design(context).error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoadingModels = false);
+    }
+  }
+
+  void _showSetupDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: _Design(context).surface,
+        shape: RoundedRectangleBorder(borderRadius: _Design.radiusLg),
+        title: Row(
+          children: [
+            Icon(Icons.rocket_launch_rounded, color: _Design(context).primary),
+            const SizedBox(width: 10),
+            Text(
+              'Welcome to JagadAI!',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                color: _Design(context).textPrimary,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'To start chatting, you need to add an API key from a provider like OpenRouter, OpenAI, or Gemini.\n\nLet\'s set up your first profile!',
+          style: TextStyle(color: _Design(context).textSecondary, height: 1.5),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _navigateToSettings();
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: _Design(context).primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: _Design.radiusSm),
+            ),
+            child: const Text(
+              'Setup API Profile',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToSettings() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SettingsScreen(
+          profileService: widget.profileService,
+          themeService: widget.themeService,
+          onProfileChanged: () {
+            _refreshModels();
+            if (mounted) setState(() {});
+          },
+        ),
+      ),
+    );
   }
 
   Future<void> _loadHistoryList() async {
@@ -995,7 +984,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
       debugPrint('Sending API call with ${validTurns.length} turns');
 
-      final response = await _openRouterService.generateResponse(
+      final profile = widget.profileService.activeProfile;
+      if (profile == null) {
+        throw Exception(
+          'No active API profile found. Please configure one in Settings.',
+        );
+      }
+
+      final service = AiApiService(profile: profile);
+
+      final response = await service.generateResponse(
         rawMessages: apiMessages,
         model: _selectedModel,
       );
@@ -1003,7 +1001,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       if (rid != _requestId) return;
 
       final safe = response.trim();
-      if (safe.isEmpty) throw Exception('Received empty response from BowAI');
+      if (safe.isEmpty) throw Exception('Received empty response from JagadAI');
       if (rid != _requestId) return;
 
       if (mounted) {
@@ -1410,11 +1408,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _saveModelPref() async {
-    try {
-      final p = await SharedPreferences.getInstance();
-      await p.setString('selected_model_key', _selectedModel);
-    } catch (e) {
-      debugPrint('Error saving model preference: $e');
+    if (_selectedModel.isNotEmpty) {
+      await widget.profileService.setActiveModel(_selectedModel);
     }
   }
 
@@ -2076,24 +2071,42 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   }
 
   void _showModelPicker() {
+    // Determine groupings. Since we now fetch dynamically, we group by provider or type.
     final grouped = <String, List<Map<String, String>>>{};
-    for (final m in _models) {
-      grouped.putIfAbsent(m['note'] ?? 'Others', () => []).add(m);
+
+    if (_models.isEmpty) {
+      grouped['No Models Available'] = [];
+    } else {
+      for (final m in _models) {
+        // Group by provider if it's openrouter (which has many providers), otherwise group by type or note
+        String groupName = m['note'] ?? 'Models';
+
+        if (widget.profileService.activeProfile?.provider == 'openrouter') {
+          // For openrouter we might group by Free vs Paid, or by provider prefix
+          if (m['type'] == 'free') {
+            groupName = '🆓 Free Models';
+          } else {
+            // Extract provider from name like 'anthropic/claude...' -> 'Anthropic'
+            final parts = m['name']?.split('/') ?? [];
+            if (parts.length > 1) {
+              groupName = parts.first.toUpperCase();
+            } else {
+              groupName = 'Paid Models';
+            }
+          }
+        }
+
+        grouped.putIfAbsent(groupName, () => []).add(m);
+      }
     }
-    const order = [
-      '⭐ Recommended',
-      '💬 General Chat',
-      '💻 Coding',
-      '🧠 Reasoning',
-      '🔧 Lightweight',
-      '🧪 Experimental',
-    ];
-    final sorted = [
-      ...order
-          .where((c) => grouped.containsKey(c))
-          .map((c) => MapEntry(c, grouped[c]!)),
-      ...grouped.entries.where((e) => !order.contains(e.key)),
-    ];
+
+    final sorted = grouped.entries.toList()
+      ..sort((a, b) {
+        // Put Free models first
+        if (a.key.contains('Free') && !b.key.contains('Free')) return -1;
+        if (!a.key.contains('Free') && b.key.contains('Free')) return 1;
+        return a.key.compareTo(b.key);
+      });
 
     showModalBottomSheet(
       context: context,
@@ -2149,7 +2162,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                         ),
                         const SizedBox(height: 1),
                         Text(
-                          'Optimize chat with the best model',
+                          widget.profileService.activeProfile?.name ??
+                              'No active profile',
                           style: TextStyle(
                             fontSize: 12,
                             color: _Design(context).textTertiary,
@@ -2158,6 +2172,17 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                         ),
                       ],
                     ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _refreshModels();
+                    },
+                    icon: Icon(
+                      Icons.refresh_rounded,
+                      color: _Design(context).primary,
+                    ),
+                    tooltip: 'Refresh Models',
                   ),
                 ],
               ),
@@ -2203,231 +2228,265 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               ),
             ),
             const Divider(height: 20, indent: 20, endIndent: 20),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                itemCount: sorted.length,
-                itemBuilder: (_, ci) {
-                  final cat = sorted[ci];
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            if (_isLoadingModels)
+              const Expanded(child: Center(child: CircularProgressIndicator()))
+            else if (_models.isEmpty)
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 4),
-                        child: Text(
-                          cat.key,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: _Design(context).textTertiary,
-                            letterSpacing: 0.5,
+                      Icon(
+                        Icons.wifi_off_rounded,
+                        size: 48,
+                        color: _Design(context).textTertiary,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No models available',
+                        style: TextStyle(color: _Design(context).textSecondary),
+                      ),
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          _refreshModels();
+                        },
+                        child: const Text('Retry Fetching'),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  itemCount: sorted.length,
+
+                  itemBuilder: (_, ci) {
+                    final cat = sorted[ci];
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 4),
+                          child: Text(
+                            cat.key,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: _Design(context).textTertiary,
+                              letterSpacing: 0.5,
+                            ),
                           ),
                         ),
-                      ),
-                      ...cat.value.map((model) {
-                        final sel = model['name'] == _selectedModel;
-                        final name = model['name']!.split('/').last;
-                        final prov = model['name']!.split('/').first;
-                        final isR = cat.key.contains('Reasoning');
-                        final caps = model['capabilities'] ?? 'text';
-                        final hasImage = caps.contains('image');
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 3,
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: _Design.radiusMd,
-                              onTap: () {
-                                if (mounted) {
-                                  setState(
-                                    () => _selectedModel = model['name']!,
-                                  );
-                                }
-                                _saveModelPref();
-                                Navigator.pop(ctx);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.check_circle,
-                                          color: Colors.white,
-                                          size: 16,
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text('Model: $name'),
-                                      ],
-                                    ),
-                                    duration: const Duration(seconds: 2),
-                                    backgroundColor: _Design(context).primary,
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: _Design(context).background,
-                                  borderRadius: _Design.radiusMd,
-                                  boxShadow: sel
-                                      ? _Design(context).shadowSmall
-                                      : null,
-                                  border: sel
-                                      ? null
-                                      : Border.all(
-                                          color: _Design(context).border,
-                                        ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    AnimatedContainer(
-                                      duration: const Duration(
-                                        milliseconds: 200,
-                                      ),
-                                      width: 32,
-                                      height: 32,
-                                      decoration: BoxDecoration(
-                                        color: sel
-                                            ? _Design(context).primary
-                                            : _Design(context).background,
-                                        borderRadius: _Design.radiusSm,
-                                        boxShadow: sel
-                                            ? [_Design(context).shadowPrimary]
-                                            : _Design(context).shadowSmall,
-                                      ),
-                                      child: Icon(
-                                        sel
-                                            ? Icons.check_rounded
-                                            : Icons.smart_toy_rounded,
-                                        color: sel
-                                            ? Colors.white
-                                            : _Design(context).textTertiary,
-                                        size: 14,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 14),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                        ...cat.value.map((model) {
+                          final sel = model['name'] == _selectedModel;
+                          final name = model['name']!.split('/').last;
+                          final prov = model['name']!.split('/').first;
+                          final isR = cat.key.contains('Reasoning');
+                          final caps = model['capabilities'] ?? 'text';
+                          final hasImage = caps.contains('image');
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 3,
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: _Design.radiusMd,
+                                onTap: () {
+                                  if (mounted) {
+                                    setState(
+                                      () => _selectedModel = model['name']!,
+                                    );
+                                  }
+                                  _saveModelPref();
+                                  Navigator.pop(ctx);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Row(
                                         children: [
-                                          Text(
-                                            name,
-                                            style: TextStyle(
-                                              fontWeight: sel
-                                                  ? FontWeight.w800
-                                                  : FontWeight.w600,
-                                              fontSize: 14,
-                                              color: sel
-                                                  ? _Design(context).primary
-                                                  : _Design(
-                                                      context,
-                                                    ).textPrimary,
-                                            ),
+                                          const Icon(
+                                            Icons.check_circle,
+                                            color: Colors.white,
+                                            size: 16,
                                           ),
-                                          const SizedBox(height: 4),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                prov,
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  color: _Design(
-                                                    context,
-                                                  ).textTertiary,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              const SizedBox(width: 10),
-                                              _buildCapabilityBadge(
-                                                '📄 TEXT',
-                                                Colors.blue,
-                                                sel,
-                                              ),
-                                              if (hasImage) ...[
-                                                const SizedBox(width: 4),
-                                                _buildCapabilityBadge(
-                                                  '🖼️ VISION',
-                                                  Colors.green,
-                                                  sel,
-                                                ),
-                                              ],
-                                            ],
-                                          ),
+                                          const SizedBox(width: 6),
+                                          Text('Model: $name'),
                                         ],
                                       ),
+                                      duration: const Duration(seconds: 2),
+                                      backgroundColor: _Design(context).primary,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
                                     ),
-                                    if (isR)
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 6),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 5,
-                                            vertical: 1,
+                                  );
+                                },
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _Design(context).background,
+                                    borderRadius: _Design.radiusMd,
+                                    boxShadow: sel
+                                        ? _Design(context).shadowSmall
+                                        : null,
+                                    border: sel
+                                        ? null
+                                        : Border.all(
+                                            color: _Design(context).border,
                                           ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.orange[50],
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                            border: Border.all(
-                                              color: Colors.orange[200]!,
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            '🧠',
-                                            style: TextStyle(fontSize: 11),
-                                          ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      AnimatedContainer(
+                                        duration: const Duration(
+                                          milliseconds: 200,
+                                        ),
+                                        width: 32,
+                                        height: 32,
+                                        decoration: BoxDecoration(
+                                          color: sel
+                                              ? _Design(context).primary
+                                              : _Design(context).background,
+                                          borderRadius: _Design.radiusSm,
+                                          boxShadow: sel
+                                              ? [_Design(context).shadowPrimary]
+                                              : _Design(context).shadowSmall,
+                                        ),
+                                        child: Icon(
+                                          sel
+                                              ? Icons.check_rounded
+                                              : Icons.smart_toy_rounded,
+                                          color: sel
+                                              ? Colors.white
+                                              : _Design(context).textTertiary,
+                                          size: 14,
                                         ),
                                       ),
-                                    if (sel)
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 6),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 7,
-                                            vertical: 2.5,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: _Design(context).primary,
-                                            borderRadius: BorderRadius.circular(
-                                              5,
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              name,
+                                              style: TextStyle(
+                                                fontWeight: sel
+                                                    ? FontWeight.w800
+                                                    : FontWeight.w600,
+                                                fontSize: 14,
+                                                color: sel
+                                                    ? _Design(context).primary
+                                                    : _Design(
+                                                        context,
+                                                      ).textPrimary,
+                                              ),
                                             ),
+                                            const SizedBox(height: 4),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  prov,
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    color: _Design(
+                                                      context,
+                                                    ).textTertiary,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 10),
+                                                _buildCapabilityBadge(
+                                                  '📄 TEXT',
+                                                  Colors.blue,
+                                                  sel,
+                                                ),
+                                                if (hasImage) ...[
+                                                  const SizedBox(width: 4),
+                                                  _buildCapabilityBadge(
+                                                    '🖼️ VISION',
+                                                    Colors.green,
+                                                    sel,
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      if (isR)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 6,
                                           ),
-                                          child: const Text(
-                                            'ACTIVE',
-                                            style: TextStyle(
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                              letterSpacing: 0.5,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 5,
+                                              vertical: 1,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.orange[50],
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                              border: Border.all(
+                                                color: Colors.orange[200]!,
+                                              ),
+                                            ),
+                                            child: const Text(
+                                              '🧠',
+                                              style: TextStyle(fontSize: 11),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                  ],
+                                      if (sel)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 6,
+                                          ),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 7,
+                                              vertical: 2.5,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: _Design(context).primary,
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            child: const Text(
+                                              'ACTIVE',
+                                              style: TextStyle(
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                                letterSpacing: 0.5,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      }).toList(),
-                      if (ci < sorted.length - 1) const SizedBox(height: 6),
-                    ],
-                  );
-                },
+                          );
+                        }).toList(),
+                        if (ci < sorted.length - 1) const SizedBox(height: 6),
+                      ],
+                    );
+                  },
+                ),
               ),
-            ),
             SizedBox(height: MediaQuery.of(ctx).padding.bottom + 8),
           ],
         ),
@@ -2460,7 +2519,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'BowAI',
+                  'JagadAI',
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 18,
@@ -2531,7 +2590,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'BowAI',
+                                'JagadAI',
                                 style: TextStyle(
                                   color: _Design(context).textPrimary,
                                   fontSize: 22,
@@ -2802,6 +2861,69 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 ),
               ),
               Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: _Design.radiusLg,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _navigateToSettings();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 13,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _Design(context).inputBg,
+                        borderRadius: _Design.radiusLg,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.manage_accounts_rounded,
+                            color: _Design(context).primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'API Profiles',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color: _Design(context).textPrimary,
+                                  ),
+                                ),
+                                Text(
+                                  'Switch or add API providers',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: _Design(context).textTertiary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right,
+                            color: _Design(context).textTertiary,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
                 padding: const EdgeInsets.fromLTRB(12, 4, 12, 14),
                 child: Container(
                   padding: const EdgeInsets.all(12),
@@ -2946,7 +3068,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             ),
             const SizedBox(height: 24),
             Text(
-              'Hi! I\'m BowAI 👋',
+              'Hi! I\'m JagadAI 👋',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
