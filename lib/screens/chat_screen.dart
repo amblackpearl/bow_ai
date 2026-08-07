@@ -1,4 +1,5 @@
 // File: lib/screens/chat_screen.dart
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:io';
@@ -136,6 +137,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final List<ChatMessage> _messages = [];
   bool _isLoading = false;
   bool _showScrollFab = false;
+  Timer? _fabHideTimer;
   String _currentConversationId = '';
   List<Map<String, dynamic>> _chatHistoryList = [];
 
@@ -155,6 +157,14 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   static const int _recentTurns = 6;
   static const String _historyKey = 'bowai_history_list';
+
+  /// How long the scroll-to-bottom FAB stays visible after the user stops
+  /// scrolling before it auto-hides.
+  static const Duration _fabHideDelay = Duration(milliseconds: 500);
+
+  /// Scrolling within this distance of the bottom is considered "at the
+  /// bottom" — the scroll-to-bottom FAB is pointless there.
+  static const double _fabNearBottomThreshold = 120;
 
   // ── Models & API ──
   List<Map<String, String>> _models = [];
@@ -216,6 +226,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _fabHideTimer?.cancel();
     _pulseController.dispose();
     _dotsController.dispose();
     _listeningController.dispose();
@@ -443,7 +454,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     // Force user to set up a profile if none exist
     if (!widget.profileService.hasProfiles) {
       _showSetupDialog();
-    } 
+    }
     // Force user to fix profile if the active one failed and they didn't trigger a new fetch
     else if (_isProfileFailed && !_isLoadingModels) {
       _showFailedProfileDialog('Profile connection failed.');
@@ -1447,12 +1458,27 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   // ═══════════════════════════════════════
   void _onScroll() {
     if (!_scrollController.hasClients) return;
-    final show =
-        _scrollController.position.maxScrollExtent - _scrollController.offset >
-        120;
-    if (show != _showScrollFab) {
-      if (mounted) setState(() => _showScrollFab = show);
+
+    final isNearBottom =
+        _scrollController.position.maxScrollExtent - _scrollController.offset <=
+        _fabNearBottomThreshold;
+
+    // Every scroll event resets the auto-hide clock.
+    _fabHideTimer?.cancel();
+
+    if (isNearBottom) {
+      // At the bottom there is nothing left to scroll down to — hide now.
+      if (_showScrollFab && mounted) setState(() => _showScrollFab = false);
+      return;
     }
+
+    // Scrolling (away from the bottom): reveal the FAB…
+    if (!_showScrollFab && mounted) setState(() => _showScrollFab = true);
+
+    // …and schedule it to disappear 500ms after the last scroll event.
+    _fabHideTimer = Timer(_fabHideDelay, () {
+      if (mounted && _showScrollFab) setState(() => _showScrollFab = false);
+    });
   }
 
   void _scrollToBottom() {
@@ -3059,10 +3085,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               ],
             ),
           ),
-          if (_showScrollFab)
-            Positioned(
-              bottom: 80,
-              right: 18,
+          // Scroll-to-bottom FAB. Always mounted so the hide animation plays;
+          // taps are ignored while hidden via IgnorePointer.
+          Positioned(
+            bottom: 80,
+            right: 18,
+            child: IgnorePointer(
+              ignoring: !_showScrollFab,
               child: AnimatedSlide(
                 offset: _showScrollFab ? Offset.zero : const Offset(0, 1.2),
                 duration: const Duration(milliseconds: 280),
@@ -3090,6 +3119,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
+          ),
         ],
       ),
     );

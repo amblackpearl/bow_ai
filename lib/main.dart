@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:JagadAI/screens/chat_screen.dart';
-import 'package:JagadAI/services/theme_service.dart';
-import 'package:JagadAI/services/api_profile_service.dart';
+import 'package:jagad_ai/screens/chat_screen.dart';
+import 'package:jagad_ai/services/theme_service.dart';
+import 'package:jagad_ai/services/api_profile_service.dart';
 
 void main() {
   runApp(const MyApp());

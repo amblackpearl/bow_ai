@@ -246,9 +246,17 @@ class ChatMessageWidget extends StatelessWidget {
     final blockquoteColor = isUser
         ? (isDark ? Colors.white70 : Colors.grey.shade700)
         : (isDark ? Colors.grey.shade400 : Colors.grey.shade700);
+    // NOTE: flutter_markdown styles blockquote text as
+    // `blockquoteStyle.merge(pStyle)`, and TextStyle.merge lets the paragraph's
+    // non-null fields (including color) override the blockquote's. So the
+    // blockquote text color is effectively `textColor` above, not
+    // `blockquoteColor`. The background MUST therefore contrast with
+    // `textColor`, or quoted lines become invisible.
     final blockquoteBgColor = isUser
         ? (isDark ? Colors.white24 : Colors.black.withValues(alpha: 0.03))
-        : (isDark ? Colors.grey.shade800 : Colors.grey.shade900);
+        : (isDark
+              ? Colors.grey.shade800
+              : const Color(0xFF6366F1).withValues(alpha: 0.06));
 
     return MarkdownStyleSheet(
       p: TextStyle(
