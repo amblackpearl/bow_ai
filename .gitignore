@@ -33,10 +33,12 @@ migrate_working_dir/
 /build/
 /coverage/
 /linux/
+/obfuscated/
 /ios/
 /web/
 /windows/
 /.claude/
+/test/
 
 # Symbolication related
 app.*.symbols
