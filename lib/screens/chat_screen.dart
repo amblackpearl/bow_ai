@@ -159,6 +159,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   // ── Models & API ──
   List<Map<String, String>> _models = [];
   bool _isLoadingModels = false;
+  bool _isProfileFailed = false;
   String _selectedModel = '';
 
   String get _shortModel {
@@ -289,11 +290,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       setState(() {
         _models = [];
         _selectedModel = '';
+        _isProfileFailed = false;
       });
       return;
     }
 
-    setState(() => _isLoadingModels = true);
+    setState(() {
+      _isLoadingModels = true;
+      _isProfileFailed = false;
+    });
+
     try {
       final service = AiApiService(profile: profile);
       final models = await service.fetchAvailableModels();
@@ -315,17 +321,60 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     } catch (e) {
       debugPrint('Error fetching models: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to load models: $e'),
-            backgroundColor: _Design(context).error,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        setState(() {
+          _isProfileFailed = true;
+        });
+        _showFailedProfileDialog(e.toString());
       }
     } finally {
       if (mounted) setState(() => _isLoadingModels = false);
     }
+  }
+
+  void _showFailedProfileDialog(String errorMsg) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: _Design(context).surface,
+        shape: RoundedRectangleBorder(borderRadius: _Design.radiusLg),
+        title: Row(
+          children: [
+            Icon(Icons.error_outline_rounded, color: _Design(context).error),
+            const SizedBox(width: 10),
+            Text(
+              'Profile Error',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                color: _Design(context).textPrimary,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Your active API profile failed to connect or fetch models.\n\nError: $errorMsg\n\nPlease fix your profile settings, add a new one, or switch to another profile.',
+          style: TextStyle(color: _Design(context).textSecondary, height: 1.5),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _navigateToSettings();
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: _Design(context).error,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: _Design.radiusSm),
+            ),
+            child: const Text(
+              'Go to Settings',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showSetupDialog() {
@@ -374,8 +423,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _navigateToSettings() {
-    Navigator.push(
+  void _navigateToSettings() async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => SettingsScreen(
@@ -388,6 +437,17 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         ),
       ),
     );
+
+    if (!mounted) return;
+
+    // Force user to set up a profile if none exist
+    if (!widget.profileService.hasProfiles) {
+      _showSetupDialog();
+    } 
+    // Force user to fix profile if the active one failed and they didn't trigger a new fetch
+    else if (_isProfileFailed && !_isLoadingModels) {
+      _showFailedProfileDialog('Profile connection failed.');
+    }
   }
 
   Future<void> _loadHistoryList() async {
